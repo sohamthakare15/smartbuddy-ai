@@ -1,0 +1,2885 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SmartBuddy.AI - Level Up Your Learning!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+<script type="importmap">
+{
+  "imports": {
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.27.0",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/client": "https://aistudiocdn.com/react-dom@^19.2.0/client"
+  }
+}
+</script>
+<style>
+/* Base transition for interactive elements */
+button, a, input, div[role="button"], [onclick] {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #4a5568; /* gray-600 */
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #718096; /* gray-500 */
+}
+
+/* THEME VARIABLES */
+:root {
+  --bg-primary: #111827;
+  --bg-secondary: #1f2937;
+  --bg-tertiary: #374151;
+  --bg-quaternary: #4b5563;
+  --bg-header: rgba(17, 24, 39, 0.8);
+  --bg-secondary-translucent: rgba(31, 41, 55, 0.7);
+
+  --text-primary: #f3f4f6;
+  --text-secondary: #9ca3af;
+  --text-tertiary: #6b7280;
+  --text-on-accent: #ffffff;
+
+  --border-primary: #374151;
+  --border-secondary: #4b5563;
+  --border-interactive: #4b5563;
+  --border-interactive-hover: #60a5fa;
+
+  --accent-primary: #3b82f6;
+  --accent-primary-hover: #2563eb;
+  --accent-primary-ring: rgba(59, 130, 246, 0.5);
+  --accent-secondary: #60a5fa;
+  --accent-tertiary: #22d3ee;
+  
+  --gradient-accent-from: #3b82f6;
+  --gradient-accent-to: #2563eb;
+  
+  --shadow-color: rgba(59, 130, 246, 0.2);
+  --shadow-color-hover: rgba(59, 130, 246, 0.3);
+
+  --color-scheme: dark;
+}
+
+html[data-theme='light'] {
+  --bg-primary: #f3f4f6;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #e5e7eb;
+  --bg-quaternary: #d1d5db;
+  --bg-header: rgba(243, 244, 246, 0.8);
+  --bg-secondary-translucent: rgba(255, 255, 255, 0.7);
+
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+  --text-tertiary: #9ca3af;
+  --text-on-accent: #ffffff;
+
+  --border-primary: #e5e7eb;
+  --border-secondary: #d1d5db;
+  --border-interactive: #d1d5db;
+  --border-interactive-hover: #3b82f6;
+  
+  --accent-primary: #2563eb;
+  --accent-primary-hover: #1d4ed8;
+  --accent-primary-ring: rgba(37, 99, 235, 0.5);
+  --accent-secondary: #3b82f6;
+  --accent-tertiary: #0891b2;
+
+  --gradient-accent-from: #3b82f6;
+  --gradient-accent-to: #2563eb;
+
+  --shadow-color: rgba(37, 99, 235, 0.2);
+  --shadow-color-hover: rgba(37, 99, 235, 0.3);
+
+  --color-scheme: light;
+}
+
+html[data-theme='synthwave'] {
+  --bg-primary: #241b2f;
+  --bg-secondary: #3a2d4a;
+  --bg-tertiary: #524466;
+  --bg-quaternary: #716287;
+  --bg-header: rgba(36, 27, 47, 0.8);
+  --bg-secondary-translucent: rgba(58, 45, 74, 0.7);
+
+  --text-primary: #f5d7ff;
+  --text-secondary: #bba7d1;
+  --text-tertiary: #9685b0;
+  --text-on-accent: #ffffff;
+
+  --border-primary: #524466;
+  --border-secondary: #716287;
+  --border-interactive: #716287;
+  --border-interactive-hover: #ec4899;
+
+  --accent-primary: #ec4899;
+  --accent-primary-hover: #d946ef;
+  --accent-primary-ring: rgba(236, 72, 153, 0.5);
+  --accent-secondary: #f472b6;
+  --accent-tertiary: #22d3ee;
+
+  --gradient-accent-from: #ec4899;
+  --gradient-accent-to: #d946ef;
+  
+  --shadow-color: rgba(236, 72, 153, 0.2);
+  --shadow-color-hover: rgba(236, 72, 153, 0.3);
+
+  --color-scheme: dark;
+}
+
+input[type="datetime-local"] {
+    color-scheme: var(--color-scheme);
+}
+
+@keyframes complete-animation {
+  0% { background-color: rgba(74, 222, 128, 0); transform: scale(1); }
+  30% { background-color: rgba(74, 222, 128, 0.15); transform: scale(1.02); }
+  100% { background-color: rgba(74, 222, 128, 0); transform: scale(1); }
+}
+.task-completed-animation {
+  animation: complete-animation 0.6s ease-out;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out forwards;
+}
+
+@keyframes slide-up-fade {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.animate-slide-up-fade {
+  animation: slide-up-fade 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+
+@keyframes fade-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(20px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+.animate-fade-in-right {
+  animation: fade-in-right 0.5s ease-out forwards;
+}
+
+/* NEW ANIMATIONS */
+@keyframes slide-in-bottom {
+  from {
+    opacity: 0;
+    transform: translateY(50px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.animate-slide-in-bottom {
+  animation: slide-in-bottom 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+@keyframes fade-in-down {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+.animate-fade-in-down {
+    animation: fade-in-down 0.5s ease-out forwards;
+}
+
+@keyframes message-in-user {
+    from { opacity: 0; transform: translateY(10px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0px) scale(1); }
+}
+.animate-message-in-user {
+    animation: message-in-user 0.3s ease-out forwards;
+    transform-origin: bottom right;
+}
+
+@keyframes message-in-ai {
+    from { opacity: 0; transform: translateY(10px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0px) scale(1); }
+}
+.animate-message-in-ai {
+    animation: message-in-ai 0.3s ease-out forwards;
+    transform-origin: bottom left;
+}
+
+/* NEW CHECKMARK ANIMATION */
+@keyframes checkmark-flourish {
+    0% { transform: scale(0) rotate(-45deg); opacity: 0; }
+    50% { transform: scale(1.25) rotate(10deg); opacity: 1; }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+.animate-checkmark-flourish {
+    display: inline-block;
+    transform-origin: center;
+    animation: checkmark-flourish 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+/* MYSTERY BOX ANIMATIONS */
+@keyframes box-shake {
+  0%, 100% { transform: translateX(0) rotate(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px) rotate(-2deg); }
+  20%, 40%, 60%, 80% { transform: translateX(5px) rotate(2deg); }
+}
+.animate-box-shake {
+  animation: box-shake 0.8s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes lid-open {
+  from { transform: rotateX(0deg); }
+  to { transform: rotateX(-110deg); }
+}
+.animate-lid-open {
+  transform-origin: bottom center;
+  animation: lid-open 0.5s ease-out forwards;
+}
+
+@keyframes light-burst {
+    from { opacity: 0; transform: scale(0); }
+    to { opacity: 1; transform: scale(2); }
+}
+.animate-light-burst {
+    animation: light-burst 0.5s 0.3s ease-out forwards;
+}
+
+@keyframes reward-pop {
+  0% { opacity: 0; transform: translateY(20px) scale(0.8); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+.animate-reward-pop {
+  animation: reward-pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+</style>
+</head>
+<body class="bg-[var(--bg-primary)] text-[var(--text-primary)] transition-colors duration-300">
+  <div class="fixed inset-0 bg-gradient-to-br from-[var(--bg-primary)] via-[var(--bg-primary)] to-black/50 -z-10"></div>
+  <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80vw] h-[80vw] max-w-lg max-h-lg bg-[var(--accent-primary)]/20 rounded-full blur-3xl -z-10"></div>
+    <div id="root"></div>
+    <script type="module">
+import React, { useState, useEffect, useRef } from 'react';
+import ReactDOM from 'react-dom/client';
+import { GoogleGenAI, Type } from "@google/genai";
+
+// --- START OF ICONS ---
+const BellIcon = (props) => (
+    React.createElement("svg", { ...props, xmlns: "http://www.w3.org/2000/svg", fill: "none", viewBox: "0 0 24 24", strokeWidth: 1.5, stroke: "currentColor" },
+        React.createElement("path", { strokeLinecap: "round", strokeLinejoin: "round", d: "M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" })
+    )
+);
+
+const BrainIcon = (props) => (
+  React.createElement("svg", { ...props, xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", fill: "currentColor" },
+    React.createElement("path", { d: "M12 2C8.13 2 5 5.13 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.87-3.13-7-7-7zm0 2c2.76 0 5 2.24 5 5 0 1.64-.8 3.09-2.03 4H9.03C7.8 12.09 7 10.64 7 9c0-2.76 2.24-5 5-5z" }),
+    React.createElement("circle", { cx: "9.5", cy: "9", r: "1" }),
+    React.createElement("circle", { cx: "14.5", cy: "9", r: "1" })
+  )
+);
+
+const ChatIcon = (props) => (
+    React.createElement("svg", { ...props, xmlns: "http://www.w3.org/2000/svg", fill: "none", viewBox: "0 0 24 24", strokeWidth: 2, stroke: "currentColor" },
+        React.createElement("path", { strokeLinecap: "round", strokeLinejoin: "round", d: "M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" })
+    )
+);
+
+const CheckIcon = (props) => (
+    React.createElement("svg", { ...props, xmlns: "http://www.w3.org/2000/svg", fill: "none", viewBox: "0 0 24 24", strokeWidth: 2, stroke: "currentColor" },
+        React.createElement("path", { strokeLinecap: "round", strokeLinejoin: "round", d: "M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" })
+    )
+);
+
+const ClipboardListIcon = (props) => (
+    React.createElement("svg", { ...props, xmlns: "http://www.w3.org/2000/svg", fill: "none", viewBox: "0 0 24 24", strokeWidth: 1.5, stroke: "currentColor" },
+        React.createElement("path", { strokeLinecap: "round", strokeLinejoin: "round", d: "M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z" })
+    )
+);
+
+const FlameIcon = (props) => (
+    React.createElement("svg", { ...props, xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", fill: "currentColor" },
+        React.createElement("path", { fillRule: "evenodd", d: "M11.236 2.112a.75.75 0 011.028 0 11.953 11.953 0 014.235 6.13c.483 1.3.701 2.7.701 4.133 0 3.98-2.186 7.643-5.49 9.61a.75.75 0 01-.982-.862 14.18 14.18 0 00-1.45-5.321 13.93 13.93 0 00-2.454-3.832 12.18 12.18 0 01-2.924-7.237c0-2.023.54-3.953 1.543-5.618a.75.75 0 011.06-.098c.245.19.48.388.704.603.23.22.468.45.713.688.25.242.507.493.77.753a11.953 11.953 0 012.31-4.88z", clipRule: "evenodd" })
+    )
+);
+
+const GemIcon = (props) => (
+    React.createElement("svg", { ...props, xmlns: "http://www.w3.org/2000/svg", fill: "none", viewBox: "0 0 24 24", strokeWidth: 2, stroke: "currentColor" },
+        React.createElement("path", { strokeLinecap: "round", strokeLinejoin: "round", d: "M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9.75l-9-5.25m9 5.25l9-5.25" })
+    )
+);
+
+const GiftIcon = (props) => (
+    React.createElement("svg", { ...props, xmlns: "http://www.w3.org/2000/svg", fill: "none", viewBox: "0 0 24 24", strokeWidth: 1.5, stroke: "currentColor" },
+      React.createElement("path", { strokeLinecap: "round", strokeLinejoin: "round", d: "M21 11.25v8.25a2.25 2.25 0 01-2.25 2.25H5.25a2.25 2.25 0 01-2.25-2.25v-8.25M12 4.875A2.625 2.625 0 109.375 7.5H12m0-2.625V7.5m0-2.625A2.625 2.625 0 1114.625 7.5H12m0 0V21m-8.625-9.75h18c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125h-18c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" })
+    )
+);
+
+const HomeIcon = (props) => (
+  React.createElement("svg", { ...props, xmlns: "http://www.w3.org/2000/svg", fill: "none", viewBox: "0 0 24 24", strokeWidth: 2, stroke: "currentColor" },
+    React.createElement("path", { strokeLinecap: "round", strokeLinejoin: "round", d: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" })
+  )
+);
+
+const LevelIcon = (props) => (
+    React.createElement("svg", { ...props, xmlns: "http://www.w3.org/2000/svg", fill: "none", viewBox: "0 0 24 24", strokeWidth: 2, stroke: "currentColor" },
+        React.createElement("path", { strokeLinecap: "round", strokeLinejoin: "round", d: "M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519 22.541 22.541 0 01-8.226 1.17a22.5 22.5 0 00-1.752-.221 6.75 6.75 0 00-3.223 1.047z" }),
+        React.createElement("path", { strokeLinecap: "round", strokeLinejoin: "round", d: "M4.5 12.75l6 6.25 6-6.25" })
+    )
+);
+
+const LockIcon = (props) => (
+    React.createElement("svg", { ...props, xmlns: "http://www.w3.org/2000/svg", fill: "none", viewBox: "0 0 24 24", strokeWidth: 2, stroke: "currentColor" },
+        React.createElement("path", { strokeLinecap: "round", strokeLinejoin: "round", d: "M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" })
+    )
+);
+
+const MysteryBoxIcon = (props) => (
+    React.createElement("svg", { ...props, xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round", strokeLinejoin: "round" },
+        React.createElement("rect", { x: "3", y: "9", width: "18", height: "10", rx: "2", ry: "2" }),
+        React.createElement("path", { d: "M3 9.5L12 5l9 4.5" }),
+        React.createElement("path", { d: "M12 14v2" }),
+        React.createElement("path", { d: "M8 9v10" }),
+        React.createElement("path", { d: "M16 9v10" })
+    )
+);
+
+const PaperclipIcon = (props) => (
+    React.createElement("svg", { ...props, xmlns: "http://www.w3.org/2000/svg", fill: "none", viewBox: "0 0 24 24", strokeWidth: 1.5, stroke: "currentColor" },
+        React.createElement("path", { strokeLinecap: "round", strokeLinejoin: "round", d: "M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3.375 3.375 0 0119.5 7.372l-10.94 10.94a2.25 2.25 0 01-3.182-3.182l7.693-7.693a.75.75 0 011.06 1.06l-7.693 7.693a.75.75 0 001.06 1.06l10.94-10.94a1.875 1.875 0 10-2.652-2.652L6.75 12.75a.75.75 0 001.06 1.06l7.693-7.693z" })
+    )
+);
+
+const QuizIcon = (props) => (
+    React.createElement("svg", { ...props, xmlns: "http://www.w3.org/2000/svg", fill: "none", viewBox: "0 0 24 24", strokeWidth: 1.5, stroke: "currentColor" },
+        React.createElement("path", { strokeLinecap: "round", strokeLinejoin: "round", d: "M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" })
+    )
+);
+
+const SparklesIcon = (props) => (
+    React.createElement("svg", { ...props, xmlns: "http://www.w3.org/2000/svg", fill: "none", viewBox: "0 0 24 24", strokeWidth: 1.5, stroke: "currentColor" },
+        React.createElement("path", { strokeLinecap: "round", strokeLinejoin: "round", d: "M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.898 20.562L16.25 22.5l-.648-1.938a3.375 3.375 0 00-2.6-2.6L11.25 18l1.938-.648a3.375 3.375 0 002.6-2.6l.648-1.938 1.938.648a3.375 3.375 0 002.6 2.6l.648 1.938-.648 1.938a3.375 3.375 0 00-2.6 2.6z" })
+    )
+);
+
+const StarIcon = (props) => (
+    React.createElement("svg", { ...props, xmlns: "http://www.w3.org/2000/svg", fill: "none", viewBox: "0 0 24 24", strokeWidth: 2, stroke: "currentColor" },
+        React.createElement("path", { strokeLinecap: "round", strokeLinejoin: "round", d: "M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" })
+    )
+);
+
+const ThumbsDownIcon = (props) => (
+    React.createElement("svg", { ...props, xmlns: "http://www.w3.org/2000/svg", fill: "none", viewBox: "0 0 24 24", strokeWidth: 1.5, stroke: "currentColor" },
+        React.createElement("path", { strokeLinecap: "round", strokeLinejoin: "round", d: "M17.367 13.5c-.806 0-1.533.446-2.031 1.08a9.041 9.041 0 01-2.861 2.4c-.723.384-1.35.956-1.653 1.715a4.498 4.498 0 00-.322 1.672V21a.75.75 0 01-.75.75A2.25 2.25 0 017.5 19.5c0-1.152.26-2.243.723-3.218.266-.558-.107-1.282-.725-1.282H4.374c-1.026 0-1.945-.694-2.054-1.715-.045-.422-.068-.85-.068-1.285a11.95 11.95 0 012.649-7.521c.388-.482.987-.729 1.605-.729H9.52c.483 0 .964.078 1.423.23l3.114 1.04a4.5 4.5 0 001.423.23h2.887a1.875 1.875 0 011.875 1.875V11.625c0 1.036-.84 1.875-1.875 1.875h-2.887z" })
+    )
+);
+
+const ThumbsUpIcon = (props) => (
+    React.createElement("svg", { ...props, xmlns: "http://www.w3.org/2000/svg", fill: "none", viewBox: "0 0 24 24", strokeWidth: 1.5, stroke: "currentColor" },
+        React.createElement("path", { strokeLinecap: "round", strokeLinejoin: "round", d: "M6.633 10.5c.806 0 1.533-.446 2.031-1.08a9.041 9.041 0 012.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 00.322-1.672V3a.75.75 0 01.75-.75A2.25 2.25 0 0116.5 4.5c0 1.152-.26 2.243-.723 3.218-.266.558.107 1.282.725 1.282h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 01-2.649 7.521c-.388.482-.987-.729-1.605-.729H13.48c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 00-1.423-.23H6.633a1.875 1.875 0 01-1.875-1.875V12.375c0-1.036.84-1.875 1.875-1.875z" })
+    )
+);
+
+const TrashIcon = (props) => (
+    React.createElement("svg", { ...props, xmlns: "http://www.w3.org/2000/svg", fill: "none", viewBox: "0 0 24 24", strokeWidth: 1.5, stroke: "currentColor" },
+        React.createElement("path", { strokeLinecap: "round", strokeLinejoin: "round", d: "M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.144-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.057-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" })
+    )
+);
+
+const TrophyIcon = (props) => (
+    React.createElement("svg", { ...props, xmlns: "http://www.w3.org/2000/svg", fill: "none", viewBox: "0 0 24 24", strokeWidth: 2, stroke: "currentColor" },
+        React.createElement("path", { strokeLinecap: "round", strokeLinejoin: "round", d: "M9 11l3-3m0 0l3 3m-3-3v8m0-13a9 9 0 110 18 9 9 0 010-18z", transform: "translate(0, 3) scale(0.8)" }),
+        React.createElement("path", { strokeLinecap: "round", strokeLinejoin: "round", d: "M12 21V19M8 21L9 17M16 21L15 17" }),
+        React.createElement("path", { strokeLinecap: "round", strokeLinejoin: "round", d: "M5 10H7M17 10H19" }),
+        React.createElement("path", { strokeLinecap: "round", strokeLinejoin: "round", d: "M9 4.586A2 2 0 0110.414 4h3.172a2 2 0 011.414.586" })
+    )
+);
+
+const UserIcon = (props) => (
+    React.createElement("svg", { ...props, xmlns: "http://www.w3.org/2000/svg", fill: "none", viewBox: "0 0 24 24", strokeWidth: 2, stroke: "currentColor" },
+        React.createElement("path", { strokeLinecap: "round", strokeLinejoin: "round", d: "M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" })
+    )
+);
+
+const XPIcon = (props) => (
+    React.createElement("svg", { ...props, xmlns: "http://www.w3.org/2000/svg", fill: "none", viewBox: "0 0 24 24", strokeWidth: 2, stroke: "currentColor" },
+        React.createElement("path", { strokeLinecap: "round", strokeLinejoin: "round", d: "M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.362-3.797z" }),
+        React.createElement("path", { strokeLinecap: "round", strokeLinejoin: "round", d: "M12 21a8.25 8.25 0 005.962-13.952 8.223 8.223 0 01-2.457 6.132A8.956 8.956 0 0112 21z" })
+    )
+);
+// --- END OF ICONS ---
+
+
+// --- START OF GEMINI SERVICE ---
+let ai = null;
+
+const initializeAi = () => {
+    if (ai) return;
+    if (!process.env.API_KEY) {
+        console.error("API_KEY environment variable not set.");
+        throw new Error("AI not initialized: API key is missing.");
+    }
+    ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+};
+
+const getSystemInstruction = (personality = 'mentor') => {
+    switch (personality) {
+        case 'funny':
+            return "You are SmartBuddy, an AI study mentor for university students. Your personality is funny and witty. You use jokes, puns, and sarcasm to make learning entertaining, but still provide accurate information. Use emojis to match your humorous tone. 🤡😂🤪";
+        case 'strict':
+            return "You are SmartBuddy, a strict AI study mentor for university students. Your tone is direct, no-nonsense, and demanding. You push the user to be disciplined and focused. No emojis, no sugar-coating. Your goal is to ensure the user achieves peak performance through rigorous guidance.";
+        case 'mentor':
+        default:
+            return "You are SmartBuddy, an AI study mentor for university students. Your tone is encouraging, supportive, and slightly playful. Use emojis to make the conversation engaging. You help students with study plans, explaining complex topics simply, and providing motivation. When the user provides an image, you act as an expert doubt solver. Analyze the image and provide a clear, step-by-step explanation for the question or concept shown. Keep your responses concise and actionable.";
+    }
+}
+
+const sendMessageToAI = async (
+    message, 
+    history,
+    image,
+    personality = 'mentor'
+) => {
+    initializeAi();
+    if (!ai) {
+        return "Sorry, I'm having trouble connecting to my brain right now. Please try again later.";
+    }
+
+    try {
+        const systemInstruction = getSystemInstruction(personality);
+
+        const contents = history
+            .slice(1)
+            .filter(msg => msg.text || msg.image)
+            .map(msg => {
+                const parts = [];
+                if (msg.text) {
+                    parts.push({ text: msg.text });
+                }
+                if (msg.image) {
+                    parts.push({
+                        inlineData: {
+                            data: msg.image.data,
+                            mimeType: msg.image.mimeType,
+                        }
+                    });
+                }
+                return {
+                    role: msg.sender === 'user' ? 'user' : 'model',
+                    parts: parts,
+                };
+            });
+        
+        const currentUserParts = [];
+        if (message) {
+            currentUserParts.push({ text: message });
+        }
+        if (image) {
+            currentUserParts.push({
+                inlineData: {
+                    data: image.data,
+                    mimeType: image.mimeType,
+                },
+            });
+        }
+        contents.push({ role: 'user', parts: currentUserParts });
+
+        const response = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: contents,
+            config: {
+                systemInstruction: systemInstruction,
+            },
+        });
+
+        return response.text;
+    } catch (error) {
+        console.error("Error sending message to Gemini:", error);
+        return "Oops! Something went wrong. Let's try that again.";
+    }
+};
+
+const breakDownTaskWithAI = async (taskTitle) => {
+    initializeAi();
+    if(!ai) {
+            throw new Error("AI not initialized");
+    }
+
+    try {
+        const response = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: `You are an expert study planner. Break down the following complex study task into 3 to 5 smaller, actionable sub-tasks. For each sub-task, provide a title and suggest an appropriate XP reward between 25 and 100 based on its complexity. The task is: '${taskTitle}'.`,
+            config: {
+                responseMimeType: "application/json",
+                responseSchema: {
+                    type: Type.ARRAY,
+                    items: {
+                        type: Type.OBJECT,
+                        properties: {
+                            title: {
+                                type: Type.STRING,
+                                description: 'The title of the sub-task.',
+                            },
+                            xp: {
+                                type: Type.NUMBER,
+                                description: 'The XP reward for the sub-task, between 25 and 100.',
+                            },
+                        },
+                        required: ["title", "xp"],
+                    },
+                },
+            },
+        });
+
+        const jsonString = response.text.trim();
+        const subTasks = JSON.parse(jsonString);
+        
+        if (!Array.isArray(subTasks)) {
+            throw new Error("AI response is not an array.");
+        }
+
+        return subTasks.map(st => ({
+            title: st.title,
+            xp: st.xp,
+        }));
+
+    } catch (error) {
+        console.error("Error breaking down task with Gemini:", error);
+        throw new Error("Sorry, I couldn't break down that task. Please try again or add it manually.");
+    }
+};
+
+const generateQuizWithAI = async (topic) => {
+    initializeAi();
+    if (!ai) {
+        throw new Error("AI not initialized");
+    }
+
+    try {
+        const response = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: `You are an expert educator. Create a short, engaging multiple-choice quiz on the topic: "${topic}". The quiz should have exactly 3 questions. For each question, provide 4 options and indicate the correct one.`,
+            config: {
+                responseMimeType: "application/json",
+                responseSchema: {
+                    type: Type.OBJECT,
+                    properties: {
+                        topic: {
+                            type: Type.STRING,
+                            description: "The topic of the quiz."
+                        },
+                        questions: {
+                            type: Type.ARRAY,
+                            description: "An array of quiz questions.",
+                            items: {
+                                type: Type.OBJECT,
+                                properties: {
+                                    question: {
+                                        type: Type.STRING,
+                                        description: "The question text."
+                                    },
+                                    options: {
+                                        type: Type.ARRAY,
+                                        description: "An array of 4 possible answers.",
+                                        items: { type: Type.STRING }
+                                    },
+                                    correctAnswerIndex: {
+                                        type: Type.NUMBER,
+                                        description: "The 0-based index of the correct answer in the options array."
+                                    }
+                                },
+                                required: ["question", "options", "correctAnswerIndex"]
+                            }
+                        }
+                    },
+                    required: ["topic", "questions"]
+                },
+            },
+        });
+
+        const jsonString = response.text.trim();
+        const quizData = JSON.parse(jsonString);
+
+        if (!quizData.questions || !Array.isArray(quizData.questions)) {
+            throw new Error("AI response did not contain valid questions.");
+        }
+
+        return quizData;
+
+    } catch (error) {
+        console.error("Error generating quiz with Gemini:", error);
+        throw new Error("Sorry, I couldn't generate that quiz. Please try a different topic.");
+    }
+};
+
+const generateStudyPlanWithAI = async (tasks) => {
+    initializeAi();
+    if(!ai) {
+            throw new Error("AI not initialized");
+    }
+
+    const uncompletedTasks = tasks.filter(task => !task.completed);
+
+    if (uncompletedTasks.length === 0) {
+        return "Looks like you've completed all your tasks for today! Great job! 🎉 Maybe it's time for a well-deserved break? Or we can brainstorm some new goals for tomorrow!";
+    }
+
+    const taskList = uncompletedTasks.map(task => `- ${task.title} (+${task.xp} XP)`).join('\\n');
+
+    const prompt = `You are SmartBuddy, an AI study mentor for university students. Your tone is encouraging, supportive, and slightly playful. Use emojis to make the conversation engaging.
+    
+Based on the user's current list of uncompleted tasks, generate a concise and actionable study plan for today. Group tasks logically if possible and suggest a schedule or order to tackle them. Keep it brief and motivating.
+
+Here are the user's remaining tasks:
+${taskList}
+`;
+
+    try {
+        const response = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: prompt,
+        });
+
+        return response.text;
+    } catch (error) {
+        console.error("Error generating study plan with Gemini:", error);
+        throw new Error("Sorry, I couldn't generate a study plan right now. Please try again in a moment.");
+    }
+};
+// --- END OF GEMINI SERVICE ---
+
+
+// --- START OF COMPONENTS ---
+
+const AchievementNotification = ({ achievement }) => {
+    const [visible, setVisible] = useState(false);
+
+    useEffect(() => {
+        setVisible(true);
+        const timer = setTimeout(() => setVisible(false), 3800);
+        return () => clearTimeout(timer);
+    }, [achievement]);
+
+    if (!achievement) return null;
+
+    return (
+        React.createElement("div", { className: `fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[var(--bg-secondary)] border-2 border-yellow-500/50 p-6 rounded-2xl text-center z-[60] transition-all duration-500 ease-in-out shadow-2xl shadow-yellow-500/20 w-80 ${visible ? 'scale-100 opacity-100' : 'scale-75 opacity-0'}` },
+            React.createElement("div", { className: "text-5xl mb-3 text-yellow-400 flex justify-center" },
+                React.createElement(StarIcon, null)
+            ),
+            React.createElement("h2", { className: "text-xl font-bold text-[var(--text-primary)]" }, "Achievement Unlocked!"),
+            React.createElement("p", { className: "text-yellow-300 font-semibold mb-3" }, achievement.title),
+            React.createElement("div", { className: "flex justify-center gap-4 text-sm font-semibold" },
+                React.createElement("span", { className: "flex items-center gap-1 bg-[var(--bg-tertiary)] px-3 py-1 rounded-full text-blue-300" },
+                    React.createElement(XPIcon, { className: "w-4 h-4" }),
+                    `+${achievement.xpReward} XP`
+                ),
+                React.createElement("span", { className: "flex items-center gap-1 bg-[var(--bg-tertiary)] px-3 py-1 rounded-full text-cyan-300" },
+                    React.createElement(GemIcon, { className: "w-4 h-4" }),
+                    `+${achievement.gemReward} Gems`
+                )
+            )
+        )
+    );
+};
+
+const PriorityButton = ({ level, current, onClick }) => {
+    const isActive = level === current;
+    const colors = {
+        low: 'border-blue-400 text-blue-300 bg-blue-500/10',
+        medium: 'border-orange-400 text-orange-300 bg-orange-500/10',
+        high: 'border-red-500 text-red-400 bg-red-500/10',
+    };
+    const defaultClasses = 'border-[var(--border-secondary)] text-[var(--text-secondary)]';
+
+    return (
+        React.createElement("button", {
+            type: "button",
+            onClick: () => onClick(level),
+            className: `flex-1 py-2 text-sm font-semibold capitalize border rounded-lg transition-colors ${isActive ? colors[level] : defaultClasses}`
+        }, level)
+    );
+};
+
+const AddTaskModal = ({ onClose, onSave, onAddParentWithSubtasks }) => {
+    const [title, setTitle] = useState('');
+    const [xp, setXp] = useState(50);
+    const [category, setCategory] = useState('');
+    const [priority, setPriority] = useState('medium');
+    const [reminder, setReminder] = useState('');
+    
+    const [isAiLoading, setIsAiLoading] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+    const [aiError, setAiError] = useState(null);
+    const [subTasks, setSubTasks] = useState([]);
+
+    const handleBreakdown = async () => {
+        if (!title.trim()) return;
+        setIsAiLoading(true);
+        setAiError(null);
+        setSubTasks([]);
+        try {
+            const tasks = await breakDownTaskWithAI(title);
+            setSubTasks(tasks);
+        } catch (error) {
+            setAiError(error instanceof Error ? error.message : "An unknown error occurred.");
+        } finally {
+            setIsAiLoading(false);
+        }
+    };
+    
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        
+        setIsSaving(true);
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        if (subTasks.length > 0) {
+            onAddParentWithSubtasks(title, subTasks, category.trim(), priority, reminder || undefined);
+        } else {
+            if (!title.trim()) return;
+            onSave({ title, xp, category: category.trim(), priority, reminderAt: reminder || undefined });
+        }
+
+        setIsSaving(false);
+        onClose();
+    };
+
+    const handleResetAi = () => {
+        setSubTasks([]);
+        setAiError(null);
+    }
+    
+    const getMinDateTime = () => {
+        const now = new Date();
+        now.setMinutes(now.getMinutes() + 1);
+        return now.toISOString().slice(0, 16);
+    };
+
+    return (
+        React.createElement("div", { className: "fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-5", onClick: onClose },
+            React.createElement("div", { 
+                className: "bg-[var(--bg-secondary)] p-8 rounded-2xl w-full max-w-md border border-[var(--border-primary)] animate-slide-in-bottom",
+                onClick: e => e.stopPropagation()
+            },
+                React.createElement("h3", { className: "text-xl font-bold text-center mb-6 text-[var(--text-primary)]" }, "Add New Study Task"),
+                React.createElement("form", { onSubmit: handleSubmit },
+                    React.createElement("div", { className: "mb-4" },
+                        React.createElement("label", { htmlFor: "taskTitle", className: "block mb-2 font-semibold text-[var(--text-primary)]" }, "Task Title"),
+                        React.createElement("input", {
+                            type: "text",
+                            id: "taskTitle",
+                            value: title,
+                            onChange: (e) => setTitle(e.target.value),
+                            placeholder: "e.g., Prepare for final calculus exam",
+                            required: true,
+                            disabled: isAiLoading || subTasks.length > 0,
+                            className: "w-full p-3 bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-primary)] disabled:opacity-50"
+                        })
+                    ),
+                    React.createElement("div", { className: "grid grid-cols-2 gap-4 mb-4" },
+                        React.createElement("div", null,
+                            React.createElement("label", { className: "block mb-2 font-semibold text-[var(--text-primary)]" }, "Priority"),
+                            React.createElement("div", { className: "flex gap-2" },
+                                React.createElement(PriorityButton, { level: "low", current: priority, onClick: setPriority }),
+                                React.createElement(PriorityButton, { level: "medium", current: priority, onClick: setPriority }),
+                                React.createElement(PriorityButton, { level: "high", current: priority, onClick: setPriority })
+                            )
+                        ),
+                         React.createElement("div", null,
+                            React.createElement("label", { htmlFor: "taskCategory", className: "block mb-2 font-semibold text-[var(--text-primary)]" }, "Category"),
+                            React.createElement("input", {
+                                type: "text",
+                                id: "taskCategory",
+                                value: category,
+                                onChange: (e) => setCategory(e.target.value),
+                                placeholder: "Science",
+                                className: "w-full p-2 bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-primary)]"
+                            })
+                        )
+                    ),
+                    subTasks.length === 0 && React.createElement("div", { className: "mb-4" },
+                        React.createElement("button", {
+                            type: "button",
+                            onClick: handleBreakdown,
+                            disabled: !title.trim() || isAiLoading,
+                            className: "w-full flex items-center justify-center gap-2 py-3 px-4 bg-[var(--bg-tertiary)] text-[var(--text-primary)] rounded-lg font-semibold hover:bg-[var(--bg-quaternary)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        },
+                            isAiLoading ? (
+                                React.createElement(React.Fragment, null,
+                                    React.createElement("div", { className: "w-5 h-5 border-2 border-[var(--text-primary)] border-t-transparent rounded-full animate-spin" }),
+                                    React.createElement("span", null, "Thinking...")
+                                )
+                            ) : (
+                                React.createElement(React.Fragment, null,
+                                    React.createElement(SparklesIcon, { className: "w-5 h-5" }),
+                                    "Break down with AI"
+                                )
+                            )
+                        )
+                    ),
+                    aiError && React.createElement("p", { className: "text-red-400 text-sm text-center mb-4" }, aiError),
+                    subTasks.length > 0 && React.createElement("div", { className: "mb-4" },
+                        React.createElement("div", { className: "flex justify-between items-center mb-2" },
+                            React.createElement("h4", { className: "font-semibold text-[var(--text-primary)]" }, "Suggested Sub-tasks"),
+                            React.createElement("button", { type: "button", onClick: handleResetAi, className: "text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)]" }, "Clear")
+                        ),
+                        React.createElement("ul", { className: "bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg p-3 space-y-2" },
+                            subTasks.map((st, index) => (
+                                React.createElement("li", { key: index, className: "flex justify-between items-center" },
+                                    React.createElement("span", { className: "text-sm text-[var(--text-primary)]" }, st.title),
+                                    React.createElement("span", { className: "text-xs font-semibold text-[var(--accent-secondary)]" }, `+${st.xp} XP`)
+                                )
+                            ))
+                        )
+                    ),
+                    React.createElement("div", { className: "mb-6" },
+                        React.createElement("label", { htmlFor: "taskReminder", className: "block mb-2 font-semibold text-[var(--text-primary)]" }, "Set Reminder (Optional)"),
+                        React.createElement("input", {
+                            type: "datetime-local",
+                            id: "taskReminder",
+                            value: reminder,
+                            onChange: (e) => setReminder(e.target.value),
+                            min: getMinDateTime(),
+                            className: "w-full p-3 bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-primary)]"
+                        })
+                    ),
+                    React.createElement("div", { className: "flex gap-4" },
+                        React.createElement("button", {
+                            type: "button",
+                            onClick: onClose,
+                            className: "flex-1 py-3 bg-[var(--bg-tertiary)] text-[var(--text-primary)] rounded-lg font-semibold hover:bg-[var(--bg-quaternary)] transition-colors"
+                        }, "Cancel"),
+                        React.createElement("button", {
+                            type: "submit",
+                            disabled: isSaving || (!title.trim() && subTasks.length === 0),
+                            className: "flex-1 py-3 h-[48px] bg-gradient-to-br from-[var(--gradient-accent-from)] to-[var(--gradient-accent-to)] text-white rounded-lg font-semibold transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                        },
+                             isSaving ? React.createElement("div", { className: "w-6 h-6 border-4 border-white border-t-transparent rounded-full animate-spin" }) : 'Save Task'
+                        )
+                    )
+                )
+            )
+        )
+    );
+};
+
+const BottomNav = ({ currentScreen, onNavigate }) => {
+    const navItems = [
+        { screen: 'dashboard', label: 'Home', icon: React.createElement(HomeIcon, null) },
+        { screen: 'chat', label: 'AI Mentor', icon: React.createElement(ChatIcon, null) },
+        { screen: 'leaderboard', label: 'Ranks', icon: React.createElement(TrophyIcon, null) },
+        { screen: 'rewards', label: 'Rewards', icon: React.createElement(GiftIcon, null) },
+        { screen: 'profile', label: 'Profile', icon: React.createElement(UserIcon, null) },
+    ];
+    const activeIndex = navItems.findIndex(item => item.screen === currentScreen);
+
+    return (
+        React.createElement("nav", { className: "fixed bottom-0 left-0 right-0 z-50 md:absolute" },
+            React.createElement("div", { className: "max-w-md mx-auto p-2" },
+                React.createElement("div", { className: "relative flex justify-around bg-[var(--bg-secondary-translucent)] backdrop-blur-lg border border-[var(--border-primary)] rounded-2xl p-2" },
+                    React.createElement("span", {
+                        className: "absolute top-2 left-0 h-[calc(100%-1rem)] w-[20%] bg-[var(--accent-primary)] rounded-xl transition-transform duration-300 ease-in-out",
+                        style: { transform: `translateX(${activeIndex * 100}%)` },
+                        "aria-hidden": "true"
+                    }),
+                    navItems.map((item) => (
+                        React.createElement("button", {
+                            key: item.screen,
+                            onClick: () => onNavigate(item.screen),
+                            className: `relative z-10 flex flex-col items-center justify-center gap-1 p-2 w-[20%] h-14 flex-1 transition-colors duration-300 ${currentScreen === item.screen ? 'text-white' : 'text-[var(--text-secondary)] hover:text-white'}`,
+                            "aria-current": currentScreen === item.screen
+                        },
+                            React.createElement("div", { className: "w-6 h-6" }, item.icon),
+                            React.createElement("span", { className: "text-xs font-semibold" }, item.label)
+                        )
+                    ))
+                )
+            )
+        )
+    );
+};
+
+const CodeBlock = ({ code }) => {
+    return (
+        React.createElement("div", { className: "bg-[var(--bg-primary)] rounded-md my-2 text-left" },
+            React.createElement("pre", { className: "p-4 text-sm font-mono text-[var(--text-primary)] overflow-x-auto" },
+                React.createElement("code", null, code)
+            )
+        )
+    );
+};
+
+const AIMessageRenderer = ({ text }) => {
+    const parts = text.split(/( ```[\s\S]*?``` )/g).filter(Boolean);
+
+    const renderTextPart = (part) => {
+        const trimmedPart = part.trim();
+        if (!trimmedPart) return null;
+        
+        const lines = trimmedPart.split('\n');
+        const elements = [];
+        let currentList = null;
+
+        const flushList = () => {
+            if (currentList) {
+                const ListTag = currentList.type;
+                elements.push(
+                    React.createElement(ListTag, { key: `list-${elements.length}`, className: `list-inside my-2 pl-2 ${ListTag === 'ul' ? 'list-disc' : 'list-decimal'}` },
+                        currentList.items.map((item, index) => React.createElement("li", { key: index }, item))
+                    )
+                );
+                currentList = null;
+            }
+        };
+
+        lines.forEach((line, index) => {
+            const ulMatch = line.match(/^\s*[-*]\s+(.*)/);
+            const olMatch = line.match(/^\s*\d+\.\s+(.*)/);
+
+            if (ulMatch) {
+                if (currentList?.type !== 'ul') flushList();
+                if (!currentList) currentList = { type: 'ul', items: [] };
+                currentList.items.push(ulMatch[1].trim());
+            } else if (olMatch) {
+                if (currentList?.type !== 'ol') flushList();
+                if (!currentList) currentList = { type: 'ol', items: [] };
+                currentList.items.push(olMatch[1].trim());
+            } else {
+                flushList();
+                elements.push(React.createElement("p", { key: `p-${index}` }, line));
+            }
+        });
+
+        flushList();
+        return elements;
+    };
+
+    return (
+        React.createElement("div", { className: "text-left" },
+            parts.map((part, index) => {
+                if (part.startsWith(' ```') && part.endsWith('``` ')) {
+                    const code = part.replace(/^ ```[a-zA-Z]*\n?|``` $/g, '').trim();
+                    return React.createElement(CodeBlock, { key: index, code: code });
+                }
+                return React.createElement("div", { key: index }, renderTextPart(part));
+            })
+        )
+    );
+};
+
+const ChatScreen = ({ onAddXp, tasks }) => {
+    const [messages, setMessages] = useState([
+        { id: crypto.randomUUID(), sender: 'ai', text: "Hi! I'm your AI study mentor. Try selecting a personality mode above to change my tone! 🎭 How can I help you level up your learning today? 🚀" }
+    ]);
+    const [input, setInput] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [isQuizModalOpen, setIsQuizModalOpen] = useState(false);
+    const [imageToSend, setImageToSend] = useState(null);
+    const [personality, setPersonality] = useState('mentor');
+    
+    const messagesEndRef = useRef(null);
+    const fileInputRef = useRef(null);
+
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    };
+
+    useEffect(scrollToBottom, [messages]);
+    
+    const handleFeedback = (messageId, feedbackType) => {
+        setMessages(prevMessages =>
+            prevMessages.map(msg => {
+                if (msg.id === messageId) {
+                    if (msg.feedback === feedbackType) {
+                        return { ...msg, feedback: undefined };
+                    }
+                    return { ...msg, feedback: feedbackType };
+                }
+                return msg;
+            })
+        );
+    };
+
+    const handleFileSelect = (event) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            if (file.size > 4 * 1024 * 1024) {
+                alert("File is too large. Please select an image smaller than 4MB.");
+                return;
+            }
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const base64String = (reader.result).split(',')[1];
+                setImageToSend({
+                    data: base64String,
+                    mimeType: file.type,
+                });
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleSendMessage = async (messageText) => {
+        const text = (messageText || input).trim();
+        if ((!text && !imageToSend) || isLoading) return;
+
+        const userMessage = { 
+            id: crypto.randomUUID(), 
+            sender: 'user', 
+            text,
+            image: imageToSend || undefined
+        };
+        setMessages(prev => [...prev, userMessage]);
+
+        setInput('');
+        setImageToSend(null);
+        setIsLoading(true);
+
+        const aiResponse = await sendMessageToAI(text, [...messages, userMessage], imageToSend || undefined, personality);
+
+        const aiMessage = { id: crypto.randomUUID(), sender: 'ai', text: aiResponse };
+        setMessages(prev => [...prev, aiMessage]);
+        setIsLoading(false);
+    };
+
+    const handleGenerateStudyPlan = async () => {
+        const userMessage = { id: crypto.randomUUID(), sender: 'user', text: 'Can you generate a study plan for me?' };
+        setMessages(prev => [...prev, userMessage]);
+        setIsLoading(true);
+        
+        try {
+            const plan = await generateStudyPlanWithAI(tasks);
+            const aiMessage = { id: crypto.randomUUID(), sender: 'ai', text: plan };
+            setMessages(prev => [...prev, aiMessage]);
+        } catch (error) {
+            const aiMessage = { id: crypto.randomUUID(), sender: 'ai', text: error instanceof Error ? error.message : "Sorry, something went wrong." };
+            setMessages(prev => [...prev, aiMessage]);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleQuizGenerated = (quiz) => {
+        const quizMessage = {
+            id: crypto.randomUUID(),
+            sender: 'ai',
+            text: `I've prepared a quiz for you on "${quiz.topic}". Let's test your knowledge!`,
+            quiz: quiz,
+        };
+        setMessages(prev => [...prev, quizMessage]);
+    };
+
+    const handleQuizComplete = (score) => {
+        const xpEarned = score * 10;
+        if (xpEarned > 0) {
+            onAddXp(xpEarned);
+        }
+    };
+
+    const handleKeyPress = (e) => {
+        if (e.key === 'Enter') {
+            handleSendMessage();
+        }
+    };
+    
+    const QuickActionButton = ({ text, icon, onClick }) => (
+        React.createElement("button", { 
+            onClick: onClick || (() => handleSendMessage(text)),
+            className: "px-4 py-2 flex items-center gap-2 bg-[var(--bg-secondary)] text-[var(--text-primary)] border border-[var(--border-primary)] rounded-full text-sm hover:bg-[var(--bg-tertiary)] transition-colors"
+        },
+            icon,
+            text
+        )
+    );
+
+    const PersonalityButton = ({ label, isActive, onClick }) => (
+        React.createElement("button", {
+            onClick: onClick,
+            className: `relative flex-1 px-4 py-2 text-sm font-semibold rounded-lg transition-colors z-10 ${isActive ? 'text-white' : 'text-[var(--text-secondary)] hover:text-white'}`
+        }, label)
+    );
+
+    const personalityIndex = personality === 'mentor' ? 0 : personality === 'funny' ? 1 : 2;
+
+    return (
+        React.createElement(React.Fragment, null,
+            React.createElement("div", { className: "flex flex-col h-[calc(100vh-210px)] max-h-[700px]" },
+                 React.createElement("div", { className: "mb-4" },
+                    React.createElement("h4", { className: "text-sm font-semibold text-[var(--text-secondary)] mb-2 text-center" }, "AI Personality"),
+                    React.createElement("div", { className: "relative flex justify-center gap-2 bg-[var(--bg-secondary)] p-1 rounded-xl border border-[var(--border-primary)]" },
+                        React.createElement("div", { className: "absolute top-1 left-1 h-[calc(100%-0.5rem)] w-1/3 bg-[var(--accent-primary)] rounded-lg transition-transform duration-300 ease-in-out", style: { transform: `translateX(${personalityIndex * 100}%)` } }),
+                        React.createElement(PersonalityButton, { 
+                            label: "Mentor", 
+                            isActive: personality === 'mentor', 
+                            onClick: () => setPersonality('mentor')
+                        }),
+                        React.createElement(PersonalityButton, { 
+                            label: "Funny", 
+                            isActive: personality === 'funny', 
+                            onClick: () => setPersonality('funny')
+                        }),
+                        React.createElement(PersonalityButton, { 
+                            label: "Strict", 
+                            isActive: personality === 'strict', 
+                            onClick: () => setPersonality('strict')
+                        })
+                    )
+                ),
+                React.createElement("div", { className: "flex gap-2 mb-5 flex-wrap" },
+                    React.createElement(QuickActionButton, { text: "Explain a concept" }),
+                    React.createElement(QuickActionButton, { text: "Generate a Quiz", icon: React.createElement(QuizIcon, { className: "w-4 h-4" }), onClick: () => setIsQuizModalOpen(true) }),
+                    React.createElement(QuickActionButton, { text: "Generate Study Plan", icon: React.createElement(ClipboardListIcon, { className: "w-4 h-4" }), onClick: handleGenerateStudyPlan })
+                ),
+                React.createElement("div", { className: "flex-1 overflow-y-auto mb-4 pr-2" },
+                    messages.map((msg) => (
+                        React.createElement("div", { key: msg.id, className: `flex mb-4 gap-2 items-end ${msg.sender === 'user' ? 'justify-end animate-message-in-user' : 'justify-start animate-message-in-ai'}` },
+                            React.createElement("div", { className: `max-w-[80%] rounded-2xl ${msg.sender === 'user' ? 'bg-[var(--accent-primary)] text-[var(--text-on-accent)] rounded-br-none' : 'bg-[var(--bg-secondary)] text-[var(--text-primary)] border border-[var(--border-primary)] rounded-bl-none'}` },
+                                msg.image && (
+                                    React.createElement("div", { className: "p-2" },
+                                        React.createElement("img", { 
+                                            src: `data:${msg.image.mimeType};base64,${msg.image.data}`, 
+                                            alt: "User upload", 
+                                            className: "rounded-lg max-h-64 w-auto object-contain"
+                                        })
+                                    )
+                                ),
+                                msg.text && (
+                                    React.createElement("div", { className: "p-3" },
+                                        msg.sender === 'ai' ? (
+                                            React.createElement(AIMessageRenderer, { text: msg.text })
+                                        ) : (
+                                            msg.text.split('\n').map((line, i) => React.createElement("p", { key: i }, line))
+                                        )
+                                    )
+                                ),
+                                msg.quiz && React.createElement(QuizComponent, { quiz: msg.quiz, onQuizComplete: handleQuizComplete })
+                            ),
+                            msg.sender === 'ai' && !msg.quiz && (
+                                React.createElement("div", { className: "flex gap-1 flex-shrink-0" },
+                                    React.createElement("button", { onClick: () => handleFeedback(msg.id, 'liked'), className: `p-1 rounded-full transition-colors ${msg.feedback === 'liked' ? 'bg-blue-500/20 text-blue-400' : 'text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)]'}`, "aria-label": "Like response" },
+                                        React.createElement(ThumbsUpIcon, { className: "w-4 h-4" })
+                                    ),
+                                    React.createElement("button", { onClick: () => handleFeedback(msg.id, 'disliked'), className: `p-1 rounded-full transition-colors ${msg.feedback === 'disliked' ? 'bg-red-500/20 text-red-400' : 'text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)]'}`, "aria-label": "Dislike response" },
+                                        React.createElement(ThumbsDownIcon, { className: "w-4 h-4" })
+                                    )
+                                )
+                            )
+                        )
+                    )),
+                    isLoading && (
+                         React.createElement("div", { className: "flex mb-4 gap-3 justify-start" },
+                            React.createElement("div", { className: "max-w-[80%] p-3 rounded-2xl bg-[var(--bg-secondary)] text-[var(--text-primary)] border border-[var(--border-primary)] rounded-bl-none flex items-center gap-2" },
+                               React.createElement("span", { className: "w-2 h-2 bg-[var(--text-secondary)] rounded-full animate-pulse" }),
+                               React.createElement("span", { className: "w-2 h-2 bg-[var(--text-secondary)] rounded-full animate-pulse [animation-delay:0.2s]" }),
+                               React.createElement("span", { className: "w-2 h-2 bg-[var(--text-secondary)] rounded-full animate-pulse [animation-delay:0.4s]" })
+                            )
+                        )
+                    ),
+                    React.createElement("div", { ref: messagesEndRef })
+                ),
+
+                React.createElement("div", null,
+                    imageToSend && (
+                        React.createElement("div", { className: "relative mb-2 w-24 h-24 p-1 bg-[var(--bg-tertiary)] rounded-lg" },
+                            React.createElement("img", { 
+                                src: `data:${imageToSend.mimeType};base64,${imageToSend.data}`, 
+                                alt: "Image preview",
+                                className: "w-full h-full object-cover rounded"
+                            }),
+                            React.createElement("button", {
+                                onClick: () => setImageToSend(null),
+                                className: "absolute -top-2 -right-2 bg-[var(--bg-primary)] rounded-full p-1 text-[var(--text-secondary)] hover:text-[var(--text-primary)]",
+                                "aria-label": "Remove image"
+                            },
+                                React.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", className: "h-4 w-4", viewBox: "0 0 20 20", fill: "currentColor" },
+                                    React.createElement("path", { fillRule: "evenodd", d: "M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z", clipRule: "evenodd" })
+                                )
+                            )
+                        )
+                    ),
+                    React.createElement("div", { className: "flex gap-2 items-center bg-[var(--bg-secondary)] p-2 rounded-xl border border-[var(--border-primary)] focus-within:border-[var(--accent-primary)] focus-within:ring-2 focus-within:ring-[var(--accent-primary-ring)]" },
+                        React.createElement("input", {
+                            type: "file",
+                            ref: fileInputRef,
+                            onChange: handleFileSelect,
+                            style: { display: 'none' },
+                            accept: "image/*"
+                        }),
+                         React.createElement("button", {
+                            onClick: () => fileInputRef.current?.click(),
+                            className: "p-3 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors",
+                            "aria-label": "Attach image",
+                            disabled: isLoading
+                        },
+                            React.createElement(PaperclipIcon, { className: "w-6 h-6" })
+                        ),
+                        React.createElement("input", {
+                            type: "text",
+                            value: input,
+                            onChange: (e) => setInput(e.target.value),
+                            onKeyPress: handleKeyPress,
+                            placeholder: "Ask with text or an image...",
+                            className: "flex-1 p-2 bg-transparent text-[var(--text-primary)] focus:outline-none",
+                            disabled: isLoading
+                        }),
+                        React.createElement("button", {
+                            onClick: () => handleSendMessage(),
+                            disabled: (!input.trim() && !imageToSend) || isLoading,
+                            className: "px-5 py-3 bg-[var(--accent-primary)] text-[var(--text-on-accent)] rounded-lg font-semibold disabled:opacity-50 transition-colors hover:bg-[var(--accent-primary-hover)] active:scale-95"
+                        }, "Send")
+                    )
+                )
+            ),
+            isQuizModalOpen && React.createElement(GenerateQuizModal, { onClose: () => setIsQuizModalOpen(false), onQuizGenerated: handleQuizGenerated })
+        )
+    );
+};
+
+const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm }) => {
+    if (!isOpen) return null;
+
+    return (
+        React.createElement("div", { className: "fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-5", role: "dialog", "aria-modal": "true", "aria-labelledby": "delete-modal-title" },
+            React.createElement("div", { className: "bg-[var(--bg-secondary)] p-8 rounded-2xl w-full max-w-sm border border-[var(--border-primary)] text-center animate-slide-up-fade" },
+                React.createElement("h3", { id: "delete-modal-title", className: "text-xl font-bold mb-4 text-[var(--text-primary)]" }, "Delete Task?"),
+                React.createElement("p", { className: "text-[var(--text-secondary)] mb-6" }, "This action cannot be undone. Are you sure you want to permanently delete this task?"),
+                React.createElement("div", { className: "flex gap-4" },
+                    React.createElement("button", {
+                        type: "button",
+                        onClick: onClose,
+                        className: "flex-1 py-3 bg-[var(--bg-tertiary)] text-[var(--text-primary)] rounded-lg font-semibold hover:bg-[var(--bg-quaternary)] transition-colors"
+                    }, "Cancel"),
+                    React.createElement("button", {
+                        type: "button",
+                        onClick: onConfirm,
+                        className: "flex-1 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-colors"
+                    }, "Delete")
+                )
+            )
+        )
+    );
+};
+
+const ProgressRing = ({ progress, delay }) => {
+    const [displayProgress, setDisplayProgress] = useState(0);
+    const radius = 54;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (displayProgress / 100) * circumference;
+
+    useEffect(() => {
+        const animation = setTimeout(() => {
+            const interval = setInterval(() => {
+                setDisplayProgress(prev => {
+                    if (prev < progress) {
+                        const increment = Math.max(1, Math.floor((progress - prev) / 10));
+                        return Math.min(progress, prev + increment);
+                    }
+                    clearInterval(interval);
+                    return progress;
+                });
+            }, 20);
+            return () => clearInterval(interval);
+        }, delay + 300);
+        return () => clearTimeout(animation);
+    }, [progress, delay]);
+
+
+    return (
+        React.createElement("div", { className: "relative w-36 h-36 flex-shrink-0" },
+            React.createElement("svg", { className: "w-full h-full", viewBox: "0 0 120 120" },
+                React.createElement("circle", {
+                    className: "text-[var(--bg-tertiary)]",
+                    strokeWidth: "8",
+                    stroke: "currentColor",
+                    fill: "transparent",
+                    r: radius,
+                    cx: "60",
+                    cy: "60"
+                }),
+                React.createElement("circle", {
+                    className: "text-[var(--accent-primary)]",
+                    strokeWidth: "8",
+                    stroke: "currentColor",
+                    fill: "transparent",
+                    r: radius,
+                    cx: "60",
+                    cy: "60",
+                    strokeLinecap: "round",
+                    style: {
+                        strokeDasharray: circumference,
+                        strokeDashoffset: offset,
+                        transition: 'stroke-dashoffset 0.5s ease-out',
+                    },
+                    transform: "rotate(-90 60 60)"
+                })
+            ),
+            React.createElement("div", { className: "absolute inset-0 flex flex-col items-center justify-center" },
+                React.createElement("span", { className: "text-3xl font-bold text-[var(--text-primary)]" }, `${Math.round(displayProgress)}%`),
+                React.createElement("span", { className: "text-sm text-[var(--text-secondary)]" }, "Today")
+            )
+        )
+    );
+};
+
+const StatCard = ({ value, label, icon, delay }) => (
+    React.createElement("div", { className: "bg-[var(--bg-secondary)]/50 backdrop-blur-lg p-3 rounded-2xl flex items-center justify-between border border-[var(--border-primary)] animate-slide-up-fade", style: { animationDelay: `${delay}ms` } },
+        React.createElement("div", { className: "w-9 h-9 flex-shrink-0 bg-[var(--bg-primary)]/60 text-[var(--accent-secondary)] rounded-lg flex items-center justify-center" }, icon),
+        React.createElement("div", { className: "text-right" },
+            React.createElement("div", { className: "text-3xl font-bold tracking-tight text-[var(--text-primary)]" }, value),
+            React.createElement("div", { className: "text-xs text-[var(--text-secondary)] -mt-1" }, label)
+        )
+    )
+);
+
+const formatTime = (totalSeconds = 0) => {
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+}
+
+const getPriorityBorderClass = (priority) => {
+    switch (priority) {
+        case 'high': return 'border-l-4 border-l-red-500/80';
+        case 'medium': return 'border-l-4 border-l-orange-400/80';
+        case 'low': return 'border-l-4 border-l-blue-400/80';
+        default: return 'border-l-4 border-l-[var(--border-secondary)]';
+    }
+};
+
+const SubTaskItem = ({ task, onToggleTask }) => {
+    const [isJustCompleted, setIsJustCompleted] = useState(false);
+    const prevCompletedRef = useRef(task.completed);
+
+    useEffect(() => {
+        if (task.completed && !prevCompletedRef.current) {
+            setIsJustCompleted(true);
+            const timer = setTimeout(() => {
+                setIsJustCompleted(false);
+            }, 1000);
+            return () => clearTimeout(timer);
+        }
+        prevCompletedRef.current = task.completed;
+    }, [task.completed]);
+
+    return (
+    React.createElement("div", { className: `flex items-center gap-4 pl-8 py-3 bg-[var(--bg-secondary)]/50 ${isJustCompleted ? 'task-completed-animation' : ''}` },
+        React.createElement("div", {
+            className: `w-5 h-5 rounded-md cursor-pointer flex-shrink-0 flex items-center justify-center border-2 transition-all duration-300 ${task.completed ? 'bg-green-400 border-green-400' : 'border-[var(--border-interactive)] hover:border-[var(--border-interactive-hover)]'}`,
+            onClick: () => onToggleTask(task.id),
+            role: "checkbox",
+            "aria-checked": task.completed,
+            "aria-label": `Mark sub-task '${task.title}' as ${task.completed ? 'incomplete' : 'complete'}`
+        },
+            React.createElement("span", { className: `text-[var(--bg-secondary)] font-bold transform ${isJustCompleted ? 'animate-checkmark-flourish' : (task.completed ? 'scale-100' : 'scale-0')}` },
+                React.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", className: "h-4 w-4", viewBox: "0 0 20 20", fill: "currentColor" },
+                    React.createElement("path", { fillRule: "evenodd", d: "M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z", clipRule: "evenodd" })
+                )
+            )
+        ),
+        React.createElement("div", { className: "flex-1" },
+            React.createElement("p", { className: `text-sm transition-colors ${task.completed ? 'line-through text-[var(--text-tertiary)]' : 'text-[var(--text-primary)]'}` }, task.title)
+        ),
+        React.createElement("span", { className: "text-xs font-semibold text-[var(--accent-secondary)] pr-4" }, `+${task.xp} XP`)
+    )
+)};
+
+const TaskItem = ({ task, allTasks, onToggleTask, onToggleTimer, onDeleteTask, delay }) => {
+    const [isExpanded, setIsExpanded] = useState(false);
+    const subTasks = allTasks.filter(t => t.parentId === task.id);
+    const isParent = subTasks.length > 0;
+    const priorityBorderClass = getPriorityBorderClass(task.priority);
+    
+    const [isJustCompleted, setIsJustCompleted] = useState(false);
+    const prevCompletedRef = useRef(task.completed);
+
+    const formatReminderTime = (isoString) => {
+        if (!isoString) return '';
+        const date = new Date(isoString);
+        const now = new Date();
+        
+        const isToday = date.toDateString() === now.toDateString();
+        const tomorrow = new Date();
+        tomorrow.setDate(now.getDate() + 1);
+        const isTomorrow = date.toDateString() === tomorrow.toDateString();
+
+        const time = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+        if (isToday) return `Today at ${time}`;
+        if (isTomorrow) return `Tomorrow at ${time}`;
+        return date.toLocaleDateString([], { month: 'short', day: 'numeric' }) + ` at ${time}`;
+    };
+
+    useEffect(() => {
+        if (task.completed && !prevCompletedRef.current) {
+            setIsJustCompleted(true);
+            const timer = setTimeout(() => {
+                setIsJustCompleted(false);
+            }, 1000);
+            return () => clearTimeout(timer);
+        }
+        prevCompletedRef.current = task.completed;
+    }, [task.completed]);
+
+    return (
+        React.createElement("div", { className: `bg-[var(--bg-secondary)] rounded-2xl overflow-hidden border border-[var(--border-primary)] animate-slide-up-fade hover:border-[var(--accent-primary)]/50 hover:-translate-y-1 hover:shadow-2xl hover:shadow-[var(--shadow-color)] ${priorityBorderClass}`, style: { animationDelay: `${delay}ms` } },
+            React.createElement("div", { className: `p-4 flex items-start gap-4 ${isJustCompleted ? 'task-completed-animation' : ''}` },
+                React.createElement("div", {
+                    className: `mt-1 w-6 h-6 rounded-lg flex-shrink-0 flex items-center justify-center border-2 transition-all duration-300 ${isParent ? 'cursor-pointer hover:border-[var(--border-interactive-hover)]' : 'cursor-pointer'} ${task.completed ? 'bg-green-400 border-green-400' : 'border-[var(--border-interactive)] hover:border-[var(--border-interactive-hover)]'}`,
+                    onClick: () => onToggleTask(task.id),
+                    role: "checkbox",
+                    "aria-checked": task.completed,
+                    "aria-label": `Mark task '${task.title}' as ${task.completed ? 'incomplete' : 'complete'}`
+                 },
+                    React.createElement("span", { className: `text-[var(--bg-secondary)] font-bold transform ${isJustCompleted ? 'animate-checkmark-flourish' : (task.completed ? 'scale-100' : 'scale-0')}` },
+                        React.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", className: "h-5 w-5", viewBox: "0 0 20 20", fill: "currentColor" },
+                            React.createElement("path", { fillRule: "evenodd", d: "M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z", clipRule: "evenodd" })
+                        )
+                    )
+                ),
+                React.createElement("div", { className: "flex-1" },
+                    React.createElement("p", { className: `transition-colors ${task.completed ? 'line-through text-[var(--text-tertiary)]' : 'text-[var(--text-primary)] font-medium'}` }, task.title),
+                    React.createElement("div", { className: "flex items-center gap-4 mt-2 text-xs text-[var(--text-secondary)]" },
+                        React.createElement("span", { className: "font-semibold text-[var(--accent-secondary)]" }, `+${task.xp} XP`),
+                        task.category && React.createElement("span", { className: "bg-[var(--bg-tertiary)] px-2 py-0.5 rounded-full" }, task.category),
+                         task.reminderAt && !task.completed && (
+                            React.createElement("div", { className: "flex items-center gap-1" },
+                                React.createElement(BellIcon, { className: "w-3 h-3" }),
+                                React.createElement("span", null, formatReminderTime(task.reminderAt))
+                            )
+                        )
+                    )
+                ),
+                React.createElement("div", { className: "flex flex-col items-end gap-2" },
+                     !task.completed && (
+                        React.createElement("button", {
+                            onClick: () => onToggleTimer(task.id),
+                            className: `w-20 h-7 text-sm rounded-lg flex items-center justify-center transition-colors ${task.timerActive ? 'bg-red-500/80 text-white' : 'bg-[var(--bg-tertiary)] hover:bg-[var(--bg-quaternary)]'}`
+                        },
+                            task.timerActive ? formatTime(task.timeSpent) : 'Start'
+                        )
+                    ),
+                    isParent && (
+                        React.createElement("button", { onClick: () => setIsExpanded(!isExpanded), className: "text-[var(--text-secondary)] hover:text-[var(--text-primary)]" },
+                             React.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", className: `h-5 w-5 transition-transform ${isExpanded ? 'rotate-180' : ''}`, viewBox: "0 0 20 20", fill: "currentColor" },
+                                React.createElement("path", { fillRule: "evenodd", d: "M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z", clipRule: "evenodd" })
+                            )
+                        )
+                    ),
+                     React.createElement("button", { onClick: () => onDeleteTask(task.id), className: "text-[var(--text-tertiary)] hover:text-red-500" },
+                        React.createElement(TrashIcon, { className: "w-5 h-5" })
+                    )
+                )
+            ),
+            isParent && (
+                React.createElement("div", { className: `transition-all duration-300 ease-in-out grid ${isExpanded ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}` },
+                    React.createElement("div", { className: "overflow-hidden" },
+                        subTasks.map(sub => React.createElement(SubTaskItem, { key: sub.id, task: sub, onToggleTask: onToggleTask }))
+                    )
+                )
+            )
+        )
+    );
+};
+
+const DashboardScreen = ({ user, tasks, onAddTaskClick, onToggleTask, onToggleTimer, onDeleteTask, setCurrentScreen }) => {
+    const uncompletedTasks = tasks.filter(task => !task.completed && !task.parentId);
+    
+    const completedTasks = tasks.filter(t => t.completed && !t.parentId);
+    const totalTasks = tasks.filter(t => !t.parentId);
+    const progress = totalTasks.length > 0 ? (completedTasks.length / totalTasks.length) * 100 : 0;
+    
+    const taskGroups = tasks.filter(t => !t.parentId);
+    
+    return (
+        React.createElement("div", null,
+            React.createElement("div", { className: "bg-[var(--bg-secondary)] p-5 rounded-2xl flex items-center justify-between gap-4 border border-[var(--border-primary)] mb-6 animate-slide-up-fade", style: { animationDelay: `100ms` } },
+                React.createElement("div", null,
+                    React.createElement("h3", { className: "text-xl font-bold text-[var(--text-primary)]" }, "Daily Progress"),
+                    React.createElement("p", { className: "text-[var(--text-secondary)]" }, "You're on a roll! 🔥"),
+                    React.createElement("button", { 
+                        onClick: () => setCurrentScreen('report'),
+                        className: "mt-4 px-4 py-2 bg-[var(--accent-primary)] text-[var(--text-on-accent)] rounded-lg text-sm font-semibold hover:bg-[var(--accent-primary-hover)] active:scale-95"
+                    }, "View Report")
+                ),
+                React.createElement(ProgressRing, { progress: progress, delay: 100 })
+            ),
+            React.createElement("div", { className: "grid grid-cols-3 gap-2 mb-8" },
+                React.createElement(StatCard, { value: user.xp, label: "Total XP", icon: React.createElement(XPIcon, { className: "w-5 h-5" }), delay: 200 }),
+                React.createElement(StatCard, { value: user.level, label: "Level", icon: React.createElement(LevelIcon, { className: "w-5 h-5" }), delay: 300 }),
+                React.createElement(StatCard, { value: user.dayStreak, label: "Day Streak", icon: React.createElement(FlameIcon, { className: "w-5 h-5" }), delay: 400 })
+            ),
+            React.createElement("div", { className: "flex justify-between items-center mb-4" },
+                React.createElement("h3", { className: "text-xl font-bold" }, "Today's Tasks"),
+                React.createElement("button", { onClick: onAddTaskClick, className: "px-4 py-2 bg-[var(--accent-primary)] text-[var(--text-on-accent)] rounded-lg text-sm font-semibold hover:bg-[var(--accent-primary-hover)] active:scale-95" }, "Add Task")
+            ),
+            React.createElement("div", { className: "space-y-3" },
+                 taskGroups.length === 0 ? (
+                    React.createElement("div", { className: "text-center py-10 px-5 bg-[var(--bg-secondary)] rounded-2xl animate-slide-up-fade", style: { animationDelay: '100ms' } },
+                        React.createElement("p", { className: "text-[var(--text-primary)] font-semibold mb-2" }, "All Clear! ✨"),
+                        React.createElement("p", { className: "text-[var(--text-secondary)]" }, "You have no tasks for today. Add a new task to get started!")
+                    )
+                ) : (
+                    taskGroups.map((task, index) => (
+                        React.createElement(TaskItem, { 
+                            key: task.id, 
+                            task: task, 
+                            allTasks: tasks,
+                            onToggleTask: onToggleTask,
+                            onToggleTimer: onToggleTimer,
+                            onDeleteTask: onDeleteTask,
+                            delay: (index + 1) * 100
+                        })
+                    ))
+                )
+            )
+        )
+    );
+};
+
+const GenerateQuizModal = ({ onClose, onQuizGenerated }) => {
+    const [topic, setTopic] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
+
+    const handleGenerate = async (e) => {
+        e.preventDefault();
+        if (!topic.trim()) return;
+
+        setIsLoading(true);
+        setError(null);
+        try {
+            const quiz = await generateQuizWithAI(topic);
+            onQuizGenerated(quiz);
+            onClose();
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'An unknown error occurred.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    return (
+        React.createElement("div", { className: "fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-5" },
+            React.createElement("div", { className: "bg-[var(--bg-secondary)] p-8 rounded-2xl w-full max-w-md border border-[var(--border-primary)] animate-slide-in-bottom" },
+                React.createElement("h3", { className: "text-xl font-bold text-center mb-6 text-[var(--text-primary)]" }, "Generate a Practice Quiz"),
+                React.createElement("form", { onSubmit: handleGenerate },
+                    React.createElement("div", { className: "mb-4" },
+                        React.createElement("label", { htmlFor: "quizTopic", className: "block mb-2 font-semibold text-[var(--text-primary)]" }, "Topic"),
+                        React.createElement("input", {
+                            type: "text",
+                            id: "quizTopic",
+                            value: topic,
+                            onChange: (e) => setTopic(e.target.value),
+                            placeholder: "e.g., React Hooks, Photosynthesis",
+                            required: true,
+                            className: "w-full p-3 bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-primary)]"
+                        })
+                    ),
+                    error && React.createElement("p", { className: "text-red-400 text-sm text-center mb-4" }, error),
+                    React.createElement("div", { className: "flex gap-4 mt-6" },
+                        React.createElement("button", {
+                            type: "button",
+                            onClick: onClose,
+                            className: "flex-1 py-3 bg-[var(--bg-tertiary)] text-[var(--text-primary)] rounded-lg font-semibold hover:bg-[var(--bg-quaternary)] transition-colors"
+                        }, "Cancel"),
+                        React.createElement("button", {
+                            type: "submit",
+                            disabled: isLoading || !topic.trim(),
+                            className: "flex-1 py-3 h-[48px] bg-gradient-to-br from-[var(--gradient-accent-from)] to-[var(--gradient-accent-to)] text-[var(--text-on-accent)] rounded-lg font-semibold transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:from-[var(--bg-tertiary)] disabled:to-[var(--bg-quaternary)]"
+                        },
+                            isLoading ? (
+                                React.createElement("div", { className: "w-6 h-6 border-4 border-white border-t-transparent rounded-full animate-spin" })
+                            ) : (
+                                React.createElement(React.Fragment, null,
+                                    React.createElement(SparklesIcon, { className: "w-5 h-5" }),
+                                    React.createElement("span", null, "Generate")
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        )
+    );
+};
+
+const LeaderboardItem = ({ entry }) => {
+    const getRankClass = (rank) => {
+        if (rank === 1) return 'bg-gradient-to-br from-amber-300 to-yellow-500 text-yellow-900 shadow-lg shadow-yellow-500/20';
+        if (rank === 2) return 'bg-gradient-to-br from-slate-300 to-gray-400 text-gray-800 shadow-lg shadow-gray-400/20';
+        if (rank === 3) return 'bg-gradient-to-br from-amber-500 to-orange-700 text-orange-100 shadow-lg shadow-orange-600/20';
+        return 'bg-[var(--bg-quaternary)] text-[var(--text-primary)]';
+    };
+    
+    const userAvatarColor = entry.isCurrentUser ? 'from-[var(--gradient-accent-from)] to-[var(--gradient-accent-to)] text-white' : 'from-[var(--bg-tertiary)] to-[var(--bg-quaternary)] text-[var(--text-primary)]';
+
+    return (
+        React.createElement("div", { 
+            className: `flex items-center gap-4 p-4 rounded-xl mb-3 border transition-all duration-300 animate-slide-up-fade ${entry.isCurrentUser ? 'bg-[var(--accent-secondary)]/20 border-[var(--accent-secondary)] scale-[1.02]' : 'bg-[var(--bg-secondary)] border-[var(--border-primary)]'}`,
+            style: { animationDelay: `${entry.rank * 50}ms` }
+        },
+            React.createElement("div", { className: `w-8 h-8 rounded-full flex items-center justify-center font-bold flex-shrink-0 ${getRankClass(entry.rank)}` },
+                entry.rank
+            ),
+            React.createElement("div", { className: `w-10 h-10 bg-gradient-to-br ${userAvatarColor} rounded-full flex items-center justify-center font-bold flex-shrink-0` },
+                entry.name.charAt(0).toUpperCase()
+            ),
+            React.createElement("div", { className: "flex-1" },
+                React.createElement("p", { className: "font-semibold text-[var(--text-primary)]" }, entry.isCurrentUser ? `${entry.name} (You)` : entry.name),
+                React.createElement("p", { className: "text-sm text-[var(--text-secondary)]" }, entry.college)
+            ),
+            React.createElement("div", { className: "font-bold text-[var(--text-primary)]" },
+                `${entry.xp.toLocaleString()} XP`
+            )
+        )
+    );
+};
+
+const LeaderboardScreen = ({ leaderboard }) => {
+    return (
+        React.createElement("div", null,
+            React.createElement("h3", { className: "text-center text-2xl font-bold mb-6 text-[var(--text-primary)]" }, "Weekly Leaderboard 🏆"),
+            React.createElement("div", null,
+                leaderboard.map(entry => React.createElement(LeaderboardItem, { key: entry.rank, entry: entry }))
+            )
+        )
+    );
+};
+
+const LevelUpNotification = ({ level }) => {
+    const [visible, setVisible] = useState(false);
+
+    useEffect(() => {
+        setVisible(true);
+        const timer = setTimeout(() => setVisible(false), 3000);
+        return () => clearTimeout(timer);
+    }, []);
+
+    return (
+        React.createElement("div", { className: `fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[var(--bg-secondary)] text-[var(--text-primary)] p-8 rounded-2xl text-center z-50 transition-all duration-500 ease-in-out border-2 border-[var(--accent-primary)]/50 shadow-2xl shadow-[var(--shadow-color)] ${visible ? 'scale-100 opacity-100' : 'scale-50 opacity-0'}` },
+            React.createElement("div", { className: "text-5xl mb-4" }, "⭐"),
+            React.createElement("h2", { className: "text-2xl font-bold" }, "Level Up!"),
+            React.createElement("p", null, "You've reached ", React.createElement("span", { className: "font-bold" }, `Level ${level}`), "!"),
+            React.createElement("p", null, "Keep up the amazing work!")
+        )
+    );
+};
+
+const LoginScreen = ({ onLogin }) => {
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        setIsLoading(true);
+        setTimeout(() => {
+            setIsLoading(false);
+            onLogin();
+        }, 1500);
+    };
+
+    return (
+        React.createElement("div", { className: "flex flex-col justify-center items-center min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] p-5 text-center" },
+            React.createElement("div", { className: "animate-slide-up-fade", style: { animationDelay: '100ms' } },
+                React.createElement("div", { className: "flex items-center justify-center gap-3 mb-3" },
+                    React.createElement("div", { className: "w-12 h-12 bg-[var(--bg-secondary)] rounded-xl flex items-center justify-center text-[var(--accent-secondary)]" },
+                        React.createElement(BrainIcon, { className: "w-8 h-8" })
+                    ),
+                    React.createElement("h1", { className: "text-4xl font-bold" }, "SmartBuddy.AI")
+                ),
+                React.createElement("p", { className: "text-lg text-[var(--text-secondary)] mb-10" }, "Level Up Your Learning!")
+            ),
+            React.createElement("form", { className: "w-full max-w-sm animate-slide-up-fade", style: { animationDelay: '300ms' }, onSubmit: handleSubmit },
+                React.createElement("div", { className: "mb-5 text-left" },
+                    React.createElement("label", { htmlFor: "email", className: "block mb-2 font-medium text-[var(--text-primary)]" }, "Email"),
+                    React.createElement("input", {
+                        type: "email",
+                        id: "email",
+                        placeholder: "Enter your email",
+                        required: true,
+                        className: "w-full px-4 py-4 border-2 border-[var(--border-primary)] rounded-xl bg-[var(--bg-secondary)] text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-primary)] focus:bg-[var(--bg-tertiary)] focus:ring-2 focus:ring-[var(--accent-primary-ring)] transition-all"
+                    })
+                ),
+                React.createElement("div", { className: "mb-5 text-left" },
+                    React.createElement("label", { htmlFor: "password", className: "block mb-2 font-medium text-[var(--text-primary)]" }, "Password"),
+                    React.createElement("input", {
+                        type: "password",
+                        id: "password",
+                        placeholder: "Enter your password",
+                        required: true,
+                        className: "w-full px-4 py-4 border-2 border-[var(--border-primary)] rounded-xl bg-[var(--bg-secondary)] text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-primary)] focus:bg-[var(--bg-tertiary)] focus:ring-2 focus:ring-[var(--accent-primary-ring)] transition-all"
+                    })
+                ),
+                React.createElement("button", {
+                    type: "submit",
+                    className: "w-full h-14 bg-gradient-to-br from-[var(--gradient-accent-from)] to-[var(--gradient-accent-to)] text-white rounded-xl font-semibold flex items-center justify-center gap-2 shadow-lg shadow-[var(--shadow-color)] hover:shadow-xl hover:shadow-[var(--shadow-color-hover)] transition-all hover:scale-[1.03] active:scale-[0.98] disabled:opacity-70 disabled:scale-100",
+                    disabled: isLoading
+                },
+                    isLoading ? React.createElement("div", { className: "w-6 h-6 border-4 border-white border-t-transparent rounded-full animate-spin" }) : 'Sign In'
+                )
+            )
+        )
+    );
+};
+
+const MysteryBoxModal = ({ isOpen, onClose, rewards }) => {
+    const [animationState, setAnimationState] = useState('idle');
+
+    useEffect(() => {
+        if (isOpen) {
+            setAnimationState('idle');
+            const shakeTimer = setTimeout(() => setAnimationState('shaking'), 500);
+            const openTimer = setTimeout(() => setAnimationState('opening'), 1500);
+            const revealTimer = setTimeout(() => setAnimationState('revealed'), 2100);
+
+            return () => {
+                clearTimeout(shakeTimer);
+                clearTimeout(openTimer);
+                clearTimeout(revealTimer);
+            };
+        }
+    }, [isOpen]);
+
+    if (!isOpen) return null;
+    
+    const BoxBase = () => (
+        React.createElement("svg", { viewBox: "0 0 80 80", className: "w-full h-full" },
+            React.createElement("defs", null,
+                React.createElement("linearGradient", { id: "boxGradient", x1: "0%", y1: "0%", x2: "0%", y2: "100%" },
+                    React.createElement("stop", { offset: "0%", stopColor: "#f59e0b" }),
+                    React.createElement("stop", { offset: "100%", stopColor: "#b45309" })
+                )
+            ),
+            React.createElement("path", { d: "M10 40 H70 V65 C70 68, 68 70, 65 70 H15 C12 70, 10 68, 10 65 V40 Z", fill: "url(#boxGradient)", stroke: "#a16207", strokeWidth: "2" }),
+            React.createElement("path", { d: "M8 42 H72", stroke: "#facc15", strokeWidth: "3" }),
+            React.createElement("circle", { cx: "40", cy: "55", r: "5", fill: "#facc15", stroke: "#a16207", strokeWidth: "2" })
+        )
+    );
+    const BoxLid = () => (
+        React.createElement("svg", { viewBox: "0 0 80 80", className: "w-full h-full absolute top-0 left-0" },
+             React.createElement("path", { d: "M10 40 C10 30, 20 25, 40 25 C60 25, 70 30, 70 40 Z", fill: "url(#boxGradient)", stroke: "#a16207", strokeWidth: "2" }),
+             React.createElement("path", { d: "M8 38 H72", stroke: "#facc15", strokeWidth: "3" })
+        )
+    );
+
+    return (
+        React.createElement("div", { 
+            className: "fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-5 animate-fade-in",
+            onClick: animationState === 'revealed' ? onClose : undefined
+        },
+            React.createElement("div", { 
+                className: "w-full max-w-sm text-center relative",
+                onClick: e => e.stopPropagation()
+            },
+                animationState === 'revealed' && rewards && (
+                    React.createElement("div", { className: "absolute inset-0 flex flex-col items-center justify-center" },
+                        React.createElement("h2", { className: "text-3xl font-bold text-white mb-4 animate-reward-pop", style: { animationDelay: '100ms' } }, "You received!"),
+                        React.createElement("div", { className: "bg-[var(--bg-secondary)] border-2 border-[var(--border-primary)] rounded-xl p-6 flex flex-col gap-4 w-64" },
+                            React.createElement("div", { className: "flex items-center gap-3 animate-reward-pop", style: { animationDelay: '300ms' } },
+                                React.createElement(GemIcon, { className: "w-10 h-10 text-cyan-400" }),
+                                React.createElement("span", { className: "text-2xl font-bold text-[var(--text-primary)]" }, `+${rewards.gems} Gems`)
+                            ),
+                            React.createElement("div", { className: "flex items-center gap-3 animate-reward-pop", style: { animationDelay: '500ms' } },
+                                React.createElement(XPIcon, { className: "w-10 h-10 text-blue-400" }),
+                                React.createElement("span", { className: "text-2xl font-bold text-[var(--text-primary)]" }, `+${rewards.xp} XP`)
+                            )
+                        ),
+                        React.createElement("button", { 
+                            onClick: onClose, 
+                            className: "mt-8 px-6 py-3 bg-[var(--accent-primary)] text-white font-semibold rounded-lg animate-reward-pop",
+                            style: { animationDelay: '700ms' }
+                        }, "Awesome!")
+                    )
+                ),
+                React.createElement("div", { className: `relative w-48 h-48 mx-auto transition-opacity duration-500 ${animationState === 'revealed' ? 'opacity-0 scale-125' : 'opacity-100'}` },
+                    animationState === 'opening' && (
+                        React.createElement("div", { className: "absolute inset-0 flex items-center justify-center" },
+                            React.createElement("div", { className: "w-24 h-24 bg-yellow-300/80 rounded-full blur-2xl animate-light-burst" })
+                        )
+                    ),
+                    React.createElement("div", { className: `relative w-48 h-48 ${animationState === 'shaking' ? 'animate-box-shake' : ''}` },
+                        React.createElement("div", { className: `absolute bottom-[35%] w-full h-1/2 ${animationState === 'opening' ? 'animate-lid-open' : ''}` },
+                           React.createElement(BoxLid, null)
+                        ),
+                        React.createElement("div", { className: "absolute bottom-[20%] w-full h-1/2" },
+                           React.createElement(BoxBase, null)
+                        )
+                    )
+                )
+            )
+        )
+    );
+};
+
+const AchievementItem = ({ achievement, progress }) => {
+    const progressPercent = Math.min((progress / achievement.goal) * 100, 100);
+    const isUnlocked = achievement.unlocked;
+
+    return (
+        React.createElement("div", { 
+            className: `bg-[var(--bg-secondary)] p-4 rounded-2xl border border-[var(--border-primary)] transition-all ${!isUnlocked && 'opacity-60'}`
+        },
+            React.createElement("div", { className: "flex items-start gap-4" },
+                React.createElement("div", { className: `w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 ${isUnlocked ? 'bg-yellow-500/20 text-yellow-400' : 'bg-[var(--bg-tertiary)] text-[var(--text-tertiary)]'}` },
+                    isUnlocked ? React.createElement(StarIcon, { className: "w-8 h-8" }) : React.createElement(LockIcon, { className: "w-8 h-8" })
+                ),
+                React.createElement("div", { className: "flex-1" },
+                    React.createElement("h4", { className: "font-bold text-[var(--text-primary)]" }, achievement.title),
+                    React.createElement("p", { className: "text-sm text-[var(--text-secondary)] mb-2" }, achievement.description),
+                    isUnlocked ? (
+                         React.createElement("div", { className: "flex items-center gap-4 text-xs font-semibold" },
+                            React.createElement("span", { className: "text-blue-400" }, `+${achievement.xpReward} XP`),
+                            React.createElement("span", { className: "text-cyan-400" }, `+${achievement.gemReward} Gems`)
+                        )
+                    ) : (
+                        React.createElement("div", null,
+                            React.createElement("div", { className: "flex justify-between text-xs text-[var(--text-secondary)] mb-1" },
+                                React.createElement("span", null, "Progress"),
+                                React.createElement("span", null, `${progress} / ${achievement.goal}`)
+                            ),
+                            React.createElement("div", { className: "w-full bg-[var(--bg-tertiary)] rounded-full h-1.5 overflow-hidden" },
+                                React.createElement("div", { 
+                                    className: "bg-[var(--accent-primary)] h-1.5 rounded-full transition-all duration-500",
+                                    style: { width: `${progressPercent}%` }
+                                })
+                            )
+                        )
+                    )
+                )
+            )
+        )
+    );
+};
+
+const ThemeButton = ({ name, colors, isActive, onClick }) => (
+    React.createElement("div", { className: "text-center" },
+        React.createElement("button", {
+            onClick: onClick,
+            className: `w-full h-16 rounded-lg border-2 flex items-center justify-center transition-all ${isActive ? 'border-[var(--accent-primary)] scale-105' : 'border-[var(--border-secondary)] hover:border-[var(--border-interactive-hover)]'}`
+        },
+            React.createElement("div", { className: "flex -space-x-2 transform scale-75" },
+                React.createElement("span", { className: "w-8 h-8 rounded-full border-2 border-white/50", style: { backgroundColor: colors.primary } }),
+                React.createElement("span", { className: "w-8 h-8 rounded-full border-2 border-white/50", style: { backgroundColor: colors.secondary } }),
+                React.createElement("span", { className: "w-8 h-8 rounded-full border-2 border-white/50", style: { backgroundColor: colors.accent } })
+            )
+        ),
+        React.createElement("p", { className: `mt-2 text-sm font-medium transition-colors ${isActive ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'}` }, name)
+    )
+);
+
+const ProfileScreen = ({ user, tasks, achievements, activeBorderClassName, currentTheme, setTheme }) => {
+    const xpForNextLevel = 200;
+    const currentLevelXp = user.xp % xpForNextLevel;
+    const progressPercent = (currentLevelXp / xpForNextLevel) * 100;
+
+    const themes = [
+        { id: 'dark', name: 'Dark', colors: { primary: '#111827', secondary: '#1f2937', accent: '#3b82f6' } },
+        { id: 'light', name: 'Light', colors: { primary: '#f3f4f6', secondary: '#ffffff', accent: '#2563eb' } },
+        { id: 'synthwave', name: 'Synthwave', colors: { primary: '#241b2f', secondary: '#3a2d4a', accent: '#ec4899' } }
+    ];
+
+    return (
+        React.createElement("div", null,
+            React.createElement("div", { className: "text-center mb-8 animate-slide-up-fade" },
+                 React.createElement("div", { className: "relative w-24 h-24 mx-auto mb-4" },
+                    React.createElement("div", { className: `absolute inset-0 bg-gradient-to-br from-[var(--gradient-accent-from)] to-[var(--gradient-accent-to)] rounded-full transition-all duration-300 ${activeBorderClassName} ring-4 ring-offset-4 ring-offset-[var(--bg-primary)]` }),
+                    React.createElement("span", { className: "relative w-full h-full flex items-center justify-center text-white text-4xl font-bold" }, user.name.charAt(0).toUpperCase())
+                ),
+                React.createElement("h2", { className: "text-2xl font-bold text-[var(--text-primary)]" }, user.name),
+                React.createElement("p", { className: "text-[var(--text-secondary)] mb-4" }, user.college)
+            ),
+             React.createElement("div", { className: "bg-[var(--bg-secondary)] p-5 rounded-2xl mb-8 border border-[var(--border-primary)] animate-slide-up-fade", style: { animationDelay: '100ms' } },
+                React.createElement("div", { className: "flex justify-between items-center mb-2" },
+                    React.createElement("span", { className: "font-semibold text-[var(--text-primary)]" }, `Level ${user.level}`),
+                    React.createElement("span", { className: "text-sm font-bold text-[var(--accent-secondary)]" }, `${user.xp % xpForNextLevel} / ${xpForNextLevel} XP`)
+                ),
+                React.createElement("div", { className: "w-full bg-[var(--bg-tertiary)] rounded-full h-2.5 overflow-hidden" },
+                    React.createElement("div", { 
+                        className: "bg-[var(--accent-primary)] h-2.5 rounded-full transition-all duration-1000 ease-out", 
+                        style: { width: `${progressPercent}%` }
+                    })
+                ),
+                React.createElement("div", { className: "text-right mt-1 text-xs text-[var(--text-secondary)]" }, `Next Level: ${user.level + 1}`)
+            ),
+            React.createElement("div", { className: "mb-6 animate-slide-up-fade", style: { animationDelay: '200ms' } },
+                React.createElement("h3", { className: "text-xl font-bold mb-4 text-[var(--text-primary)]" }, "Appearance"),
+                React.createElement("div", { className: "grid grid-cols-3 gap-4" },
+                    themes.map(t => (
+                        React.createElement(ThemeButton, {
+                            key: t.id,
+                            name: t.name,
+                            colors: t.colors,
+                            isActive: currentTheme === t.id,
+                            onClick: () => setTheme(t.id)
+                        })
+                    ))
+                )
+            ),
+            React.createElement("div", { className: "mb-6 animate-slide-up-fade", style: { animationDelay: '300ms' } },
+                React.createElement("h3", { className: "text-xl font-bold mb-4 text-[var(--text-primary)]" }, "Achievements"),
+                React.createElement("div", { className: "space-y-3" },
+                    achievements.map(ach => (
+                        React.createElement(AchievementItem, { 
+                            key: ach.id, 
+                            achievement: ach, 
+                            progress: ach.getProgress(user, tasks) 
+                        })
+                    ))
+                )
+            )
+        )
+    );
+};
+
+const ProfileSwitcherModal = ({ profiles, currentUserId, onClose, onSwitch, onAdd }) => {
+    const [isAdding, setIsAdding] = useState(false);
+    const [newName, setNewName] = useState('');
+    const [newCollege, setNewCollege] = useState('');
+
+    const handleAddProfile = (e) => {
+        e.preventDefault();
+        if (newName.trim() && newCollege.trim()) {
+            onAdd(newName.trim(), newCollege.trim());
+        }
+    };
+
+    return (
+        React.createElement("div", { className: "fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-5", onClick: onClose },
+            React.createElement("div", { 
+                className: "bg-[var(--bg-secondary)] p-6 rounded-2xl w-full max-w-sm border border-[var(--border-primary)] animate-slide-in-bottom",
+                onClick: e => e.stopPropagation()
+            },
+                React.createElement("h3", { className: "text-xl font-bold text-center mb-6 text-[var(--text-primary)]" }, "Switch Profile"),
+                
+                React.createElement("div", { className: "space-y-2 mb-4 max-h-60 overflow-y-auto" },
+                    profiles.map(profile => (
+                        React.createElement("button", {
+                            key: profile.id,
+                            onClick: () => onSwitch(profile.id),
+                            className: `w-full flex items-center gap-4 p-3 rounded-lg text-left transition-colors ${profile.id === currentUserId ? 'bg-[var(--accent-primary)]/20' : 'hover:bg-[var(--bg-tertiary)]'}`
+                        },
+                            React.createElement("div", { className: "relative w-10 h-10 rounded-full bg-gradient-to-br from-[var(--gradient-accent-from)] to-[var(--gradient-accent-to)] flex items-center justify-center flex-shrink-0" },
+                                React.createElement("span", { className: "relative text-white text-lg font-bold" }, profile.name.charAt(0).toUpperCase())
+                            ),
+                            React.createElement("div", { className: "flex-1" },
+                                React.createElement("p", { className: "font-semibold text-[var(--text-primary)]" }, profile.name),
+                                React.createElement("p", { className: "text-sm text-[var(--text-secondary)]" }, profile.college)
+                            ),
+                            profile.id === currentUserId && (
+                                React.createElement("div", { className: "text-[var(--accent-secondary)]" },
+                                    React.createElement(CheckIcon, { className: "w-6 h-6" })
+                                )
+                            )
+                        )
+                    ))
+                ),
+
+                isAdding ? (
+                    React.createElement("form", { onSubmit: handleAddProfile, className: "animate-fade-in" },
+                        React.createElement("input", {
+                            type: "text",
+                            value: newName,
+                            onChange: e => setNewName(e.target.value),
+                            placeholder: "Full Name",
+                            required: true,
+                            className: "w-full p-3 mb-2 bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-primary)]"
+                        }),
+                        React.createElement("input", {
+                            type: "text",
+                            value: newCollege,
+                            onChange: e => setNewCollege(e.target.value),
+                            placeholder: "College Name",
+                            required: true,
+                            className: "w-full p-3 mb-4 bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-primary)]"
+                        }),
+                        React.createElement("div", { className: "flex gap-2" },
+                             React.createElement("button", { type: "button", onClick: () => setIsAdding(false), className: "flex-1 py-2 bg-[var(--bg-tertiary)] text-[var(--text-primary)] rounded-lg font-semibold hover:bg-[var(--bg-quaternary)] transition-colors" }, "Cancel"),
+                            React.createElement("button", { type: "submit", className: "flex-1 py-2 bg-[var(--accent-primary)] text-[var(--text-on-accent)] rounded-lg font-semibold hover:bg-[var(--accent-primary-hover)] transition-colors" }, "Create")
+                        )
+                    )
+                ) : (
+                    React.createElement("button", {
+                        onClick: () => setIsAdding(true),
+                        className: "w-full flex items-center justify-center gap-2 py-3 px-4 bg-[var(--bg-tertiary)] text-[var(--text-primary)] rounded-lg font-semibold hover:bg-[var(--bg-quaternary)] transition-colors"
+                    },
+                        React.createElement(UserIcon, { className: "w-5 h-5" }), "Add Profile"
+                    )
+                )
+            )
+        )
+    );
+};
+
+const QuizComponent = ({ quiz, onQuizComplete }) => {
+    const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+    const [selectedAnswerIndex, setSelectedAnswerIndex] = useState(null);
+    const [score, setScore] = useState(0);
+    const [isAnswered, setIsAnswered] = useState(false);
+
+    const currentQuestion = quiz.questions[currentQuestionIndex];
+    const isQuizFinished = currentQuestionIndex >= quiz.questions.length;
+
+    const handleAnswerSelect = (index) => {
+        if (isAnswered) return;
+
+        setSelectedAnswerIndex(index);
+        setIsAnswered(true);
+
+        if (index === currentQuestion.correctAnswerIndex) {
+            setScore(s => s + 1);
+        }
+    };
+
+    const handleNext = () => {
+        if (currentQuestionIndex < quiz.questions.length - 1) {
+            setCurrentQuestionIndex(i => i + 1);
+            setSelectedAnswerIndex(null);
+            setIsAnswered(false);
+        } else {
+            setCurrentQuestionIndex(i => i + 1);
+            onQuizComplete(score, quiz.questions.length);
+        }
+    };
+
+    const getButtonClass = (index) => {
+        if (!isAnswered) {
+            return 'bg-[var(--bg-tertiary)] hover:bg-[var(--bg-quaternary)]';
+        }
+        if (index === currentQuestion.correctAnswerIndex) {
+            return 'bg-green-500/80 border-green-400';
+        }
+        if (index === selectedAnswerIndex) {
+            return 'bg-red-500/80 border-red-400';
+        }
+        return 'bg-[var(--bg-tertiary)] opacity-60';
+    };
+
+    if (isQuizFinished) {
+        const xpEarned = score * 10;
+        return (
+            React.createElement("div", { className: "p-4 text-center" },
+                React.createElement("h4", { className: "text-xl font-bold text-[var(--text-primary)]" }, "Quiz Complete! 🎉"),
+                React.createElement("p", { className: "text-[var(--text-secondary)] mt-2" }, `You scored ${score} out of ${quiz.questions.length}.`),
+                React.createElement("p", { className: "font-bold text-blue-400 text-lg mt-2" }, `+${xpEarned} XP Earned!`)
+            )
+        );
+    }
+
+    return (
+        React.createElement("div", { className: "p-4" },
+            React.createElement("p", { className: "text-sm text-[var(--text-secondary)] font-semibold mb-2" }, `Quiz: ${quiz.topic}`),
+            React.createElement("p", { className: "font-semibold text-[var(--text-primary)] mb-4" }, `${currentQuestionIndex + 1}. ${currentQuestion.question}`),
+            React.createElement("div", { className: "space-y-3" },
+                currentQuestion.options.map((option, index) => (
+                    React.createElement("button", {
+                        key: index,
+                        onClick: () => handleAnswerSelect(index),
+                        disabled: isAnswered,
+                        className: `w-full text-left p-3 rounded-lg border border-transparent transition-colors ${getButtonClass(index)}`
+                    }, option)
+                ))
+            ),
+            isAnswered && (
+                React.createElement("button", {
+                    onClick: handleNext,
+                    className: "w-full mt-4 py-3 bg-[var(--accent-primary)] text-[var(--text-on-accent)] rounded-lg font-semibold hover:bg-[var(--accent-primary-hover)] transition-colors"
+                },
+                    currentQuestionIndex < quiz.questions.length - 1 ? 'Next Question' : 'Finish Quiz'
+                )
+            )
+        )
+    );
+};
+
+const ReminderNotification = ({ task, onClose }) => {
+    const [isExiting, setIsExiting] = useState(false);
+
+    const handleClose = () => {
+        setIsExiting(true);
+        setTimeout(onClose, 300);
+    };
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            handleClose();
+        }, 8000);
+
+        return () => clearTimeout(timer);
+    }, []);
+
+    return (
+        React.createElement("div", { className: `bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-xl p-4 w-80 shadow-lg animate-fade-in-right transition-all duration-300 ${isExiting ? 'opacity-0 translate-x-5' : 'opacity-100 translate-x-0'}` },
+            React.createElement("div", { className: "flex items-start gap-3" },
+                React.createElement("div", { className: "w-8 h-8 flex-shrink-0 bg-[var(--accent-primary)]/20 text-[var(--accent-secondary)] rounded-full flex items-center justify-center mt-1" },
+                    React.createElement(BellIcon, { className: "w-5 h-5" })
+                ),
+                React.createElement("div", { className: "flex-1" },
+                    React.createElement("h4", { className: "font-bold text-[var(--text-primary)]" }, "Task Reminder"),
+                    React.createElement("p", { className: "text-[var(--text-secondary)] text-sm" }, task.title)
+                ),
+                React.createElement("button", { onClick: handleClose, className: "text-[var(--text-tertiary)] hover:text-[var(--text-primary)]" },
+                    React.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", className: "h-5 w-5", fill: "none", viewBox: "0 0 24 24", stroke: "currentColor" },
+                        React.createElement("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M6 18L18 6M6 6l12 12" })
+                    )
+                )
+            )
+        )
+    );
+};
+
+const ReportScreen = ({ user, tasks, onBack }) => {
+    const isToday = (isoString) => {
+        if (!isoString) return false;
+        const date = new Date(isoString);
+        const today = new Date();
+        return date.getDate() === today.getDate() &&
+               date.getMonth() === today.getMonth() &&
+               date.getFullYear() === today.getFullYear();
+    };
+
+    const formatTimeDetailed = (totalSeconds = 0) => {
+        if (totalSeconds < 60) return `${totalSeconds}s`;
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        let result = '';
+        if (hours > 0) result += `${hours}h `;
+        if (minutes > 0) result += `${minutes}m`;
+        return result.trim() || '0m';
+    }
+
+    const tasksToday = tasks.filter(t => isToday(t.createdAt));
+    const completedTasksToday = tasks.filter(t => t.completed && isToday(t.createdAt));
+    
+    const xpGainedToday = completedTasksToday.reduce((sum, task) => sum + task.xp, 0);
+    const timeStudiedToday = tasksToday.reduce((sum, task) => sum + (task.timeSpent || 0), 0);
+    
+    const categoryBreakdown = completedTasksToday.reduce((acc, task) => {
+        const category = task.category || 'Uncategorized';
+        acc[category] = (acc[category] || 0) + 1;
+        return acc;
+    }, {});
+
+    const ReportStatCard = ({ value, label, icon, delay }) => (
+        React.createElement("div", { className: "bg-[var(--bg-secondary)] p-4 rounded-xl flex-1 flex flex-col items-center justify-center text-center border border-[var(--border-primary)] animate-slide-up-fade", style: { animationDelay: `${delay}ms` } },
+            React.createElement("div", { className: "w-10 h-10 mb-2 flex-shrink-0 bg-[var(--bg-tertiary)] text-[var(--accent-secondary)] rounded-full flex items-center justify-center" }, icon),
+            React.createElement("div", { className: "text-2xl font-bold text-[var(--text-primary)]" }, value),
+            React.createElement("div", { className: "text-sm text-[var(--text-secondary)]" }, label)
+        )
+    );
+
+    return (
+        React.createElement("div", null,
+            React.createElement("div", { className: "flex items-center mb-6 relative" },
+                React.createElement("button", { onClick: onBack, className: "absolute left-0 p-2 -ml-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] rounded-full" },
+                    React.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", className: "h-6 w-6", fill: "none", viewBox: "0 0 24 24", stroke: "currentColor", strokeWidth: 2 },
+                        React.createElement("path", { strokeLinecap: "round", strokeLinejoin: "round", d: "M10 19l-7-7m0 0l7-7m-7 7h18" })
+                    )
+                ),
+                React.createElement("h3", { className: "text-2xl font-bold text-center flex-1 text-[var(--text-primary)]" }, "Productivity Report")
+            ),
+            React.createElement("div", { className: "animate-slide-up-fade", style: { animationDelay: '100ms' } },
+                 React.createElement("h4", { className: "text-lg font-bold mb-3 text-[var(--text-primary)]" }, "Today's Summary"),
+                 React.createElement("div", { className: "flex gap-3 mb-8" },
+                     React.createElement(ReportStatCard, { value: completedTasksToday.length, label: "Tasks Done", icon: React.createElement(CheckIcon, { className: "w-5 h-5" }), delay: 200 }),
+                     React.createElement(ReportStatCard, { value: formatTimeDetailed(timeStudiedToday), label: "Time Studied", icon:
+                         React.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", className: "h-5 w-5", fill: "none", viewBox: "0 0 24 24", stroke: "currentColor", strokeWidth: 2 },
+                             React.createElement("path", { strokeLinecap: "round", strokeLinejoin: "round", d: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" })
+                         ), delay: 300 }),
+                     React.createElement(ReportStatCard, { value: `+${xpGainedToday}`, label: "XP Gained", icon: React.createElement(XPIcon, { className: "w-5 h-5" }), delay: 400 })
+                 )
+            ),
+            React.createElement("div", { className: "animate-slide-up-fade", style: { animationDelay: '500ms' } },
+                React.createElement("h4", { className: "text-lg font-bold mb-3 text-[var(--text-primary)]" }, "Category Breakdown"),
+                React.createElement("div", { className: "bg-[var(--bg-secondary)] p-4 rounded-xl border border-[var(--border-primary)] space-y-3" },
+                    Object.keys(categoryBreakdown).length > 0 ? (
+                        Object.entries(categoryBreakdown).map(([category, count]) => (
+                            React.createElement("div", { key: category, className: "flex justify-between items-center text-[var(--text-secondary)]" },
+                                React.createElement("span", { className: "font-medium text-[var(--text-primary)]" }, category),
+                                React.createElement("span", { className: "font-semibold bg-[var(--bg-tertiary)] px-2 py-0.5 rounded-full text-sm" }, `${count} task${count > 1 ? 's' : ''}`)
+                            )
+                        ))
+                    ) : (
+                        React.createElement("p", { className: "text-[var(--text-secondary)] text-center py-4" }, "No tasks completed today. Let's get to it!")
+                    )
+                )
+            )
+        )
+    );
+};
+
+const BorderItem = ({ border, userGems, isActive, onPurchase, onSelect }) => {
+    const canAfford = userGems >= border.cost;
+
+    return (
+        React.createElement("div", { className: "bg-[var(--bg-secondary)] p-4 rounded-2xl border border-[var(--border-primary)] flex flex-col items-center text-center" },
+            React.createElement("div", { className: "relative w-20 h-20 mb-4" },
+                React.createElement("div", { className: `absolute inset-0 bg-gradient-to-br from-[var(--bg-tertiary)] to-[var(--bg-quaternary)] rounded-full transition-all duration-300 ${border.className} ring-4 ring-offset-4 ring-offset-[var(--bg-secondary)]` }),
+                React.createElement("span", { className: "relative w-full h-full flex items-center justify-center text-[var(--text-primary)] text-3xl font-bold" }, "J")
+            ),
+            React.createElement("h4", { className: "font-bold text-lg text-[var(--text-primary)]" }, border.name),
+            React.createElement("p", { className: "text-sm text-[var(--text-secondary)] flex-1 mb-4" }, border.description),
+            
+            border.isOwned ? (
+                React.createElement("button", {
+                    onClick: () => onSelect(border.id),
+                    disabled: isActive,
+                    className: "w-full h-11 flex items-center justify-center gap-2 rounded-lg font-semibold transition-colors disabled:bg-green-500 disabled:text-white bg-[var(--bg-tertiary)] text-[var(--text-primary)] hover:bg-[var(--bg-quaternary)]"
+                },
+                    isActive ? (
+                        React.createElement(React.Fragment, null,
+                            React.createElement(CheckIcon, { className: "w-5 h-5" }),
+                            React.createElement("span", null, "Active")
+                        )
+                    ) : 'Select'
+                )
+            ) : (
+                React.createElement("button", {
+                    onClick: () => onPurchase(border.id),
+                    disabled: !canAfford,
+                    className: "w-full h-11 flex items-center justify-center gap-2 rounded-lg font-semibold transition-colors bg-[var(--accent-primary)] text-[var(--text-on-accent)] hover:bg-[var(--accent-primary-hover)] disabled:bg-[var(--bg-tertiary)] disabled:opacity-70 disabled:cursor-not-allowed"
+                },
+                    React.createElement(GemIcon, { className: "w-5 h-5" }),
+                    React.createElement("span", null, border.cost)
+                )
+            )
+        )
+    );
+};
+
+const RewardsScreen = ({ borders, userGems, activeBorderId, onPurchase, onSelect, mysteryBoxes, onOpenMysteryBox }) => {
+    const [isBoxModalOpen, setIsBoxModalOpen] = useState(false);
+    const [rewardsToShow, setRewardsToShow] = useState(null);
+
+    const handleOpenClick = () => {
+        if (mysteryBoxes > 0) {
+            const rewards = onOpenMysteryBox();
+            if (rewards) {
+                setRewardsToShow(rewards);
+                setIsBoxModalOpen(true);
+            }
+        }
+    };
+    
+    return (
+        React.createElement(React.Fragment, null,
+            React.createElement("div", null,
+                React.createElement("div", { className: "text-center mb-8" },
+                    React.createElement("h3", { className: "text-2xl font-bold text-[var(--text-primary)]" }, "Rewards Store"),
+                    React.createElement("p", { className: "text-[var(--text-secondary)]" }, "Spend your gems on cool profile customizations!")
+                ),
+                React.createElement("div", { className: "mb-8" },
+                    React.createElement("h4", { className: "text-xl font-bold mb-4 text-[var(--text-primary)]" }, "Suspense Reward"),
+                    React.createElement("div", { className: "bg-[var(--bg-secondary)] p-5 rounded-2xl border border-[var(--border-primary)] flex items-center justify-between animate-slide-up-fade" },
+                        React.createElement("div", { className: "flex items-center gap-4" },
+                            React.createElement("div", { className: "w-16 h-16 text-[var(--accent-tertiary)] relative" },
+                                mysteryBoxes > 0 && React.createElement("div", { className: "absolute inset-0 bg-[var(--accent-tertiary)]/20 rounded-full blur-lg animate-pulse" }),
+                                React.createElement(MysteryBoxIcon, null)
+                            ),
+                            React.createElement("div", null,
+                                React.createElement("h5", { className: "text-lg font-bold text-[var(--text-primary)]" }, "Mystery Box"),
+                                React.createElement("p", { className: "text-[var(--text-secondary)]" }, `You have ${mysteryBoxes} box${mysteryBoxes !== 1 ? 'es' : ''} to open!`)
+                            )
+                        ),
+                        React.createElement("button", {
+                            onClick: handleOpenClick,
+                            disabled: mysteryBoxes <= 0,
+                            className: "px-5 py-3 bg-gradient-to-br from-[var(--gradient-accent-from)] to-[var(--gradient-accent-to)] text-white rounded-lg font-semibold transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:from-gray-500 disabled:to-gray-600 disabled:scale-100"
+                        }, "Open")
+                    )
+                ),
+                React.createElement("div", null,
+                    React.createElement("h4", { className: "text-xl font-bold mb-4 text-[var(--text-primary)]" }, "Profile Borders"),
+                    React.createElement("div", { className: "grid grid-cols-2 gap-4" },
+                        borders.map((border, index) => (
+                            React.createElement("div", { key: border.id, className: "animate-slide-up-fade", style: { animationDelay: `${index * 100}ms` } },
+                                React.createElement(BorderItem, {
+                                    border: border,
+                                    userGems: userGems,
+                                    isActive: activeBorderId === border.id,
+                                    onPurchase: onPurchase,
+                                    onSelect: onSelect
+                                })
+                            )
+                        ))
+                    )
+                )
+            ),
+            React.createElement(MysteryBoxModal, { 
+                isOpen: isBoxModalOpen,
+                onClose: () => {
+                    setIsBoxModalOpen(false);
+                    setRewardsToShow(null);
+                },
+                rewards: rewardsToShow
+            })
+        )
+    );
+};
+
+const MainApp = ({ 
+    user, tasks, leaderboard, currentScreen, setCurrentScreen, onAddTask, onAddParentWithSubtasks, 
+    onToggleTask, onToggleTimer, onDeleteTask, onAddXp, achievements, profileBorders, 
+    onPurchaseBorder, onSetActiveBorder, activeBorderClassName, theme, setTheme, onOpenMysteryBox,
+    onSwitchProfileClick
+}) => {
+    const [isModalOpen, setIsModalOpen] = React.useState(false);
+
+    const renderScreen = () => {
+        switch (currentScreen) {
+            case 'dashboard':
+                return React.createElement(DashboardScreen, { user: user, tasks: tasks, onAddTaskClick: () => setIsModalOpen(true), onToggleTask: onToggleTask, onToggleTimer: onToggleTimer, onDeleteTask: onDeleteTask, setCurrentScreen: setCurrentScreen });
+            case 'chat':
+                return React.createElement(ChatScreen, { onAddXp: onAddXp, tasks: tasks });
+            case 'leaderboard':
+                return React.createElement(LeaderboardScreen, { leaderboard: leaderboard });
+            case 'rewards':
+                return React.createElement(RewardsScreen, { 
+                    borders: profileBorders, 
+                    userGems: user.gems, 
+                    onPurchase: onPurchaseBorder, 
+                    onSelect: onSetActiveBorder, 
+                    activeBorderId: user.activeBorderId || null, 
+                    mysteryBoxes: user.mysteryBoxes,
+                    onOpenMysteryBox: onOpenMysteryBox
+                });
+            case 'profile':
+                return React.createElement(ProfileScreen, { user: user, tasks: tasks, achievements: achievements, activeBorderClassName: activeBorderClassName, currentTheme: theme, setTheme: setTheme });
+            case 'report':
+                return React.createElement(ReportScreen, { user: user, tasks: tasks, onBack: () => setCurrentScreen('dashboard') });
+            default:
+                return React.createElement(DashboardScreen, { user: user, tasks: tasks, onAddTaskClick: () => setIsModalOpen(true), onToggleTask: onToggleTask, onToggleTimer: onToggleTimer, onDeleteTask: onDeleteTask, setCurrentScreen: setCurrentScreen });
+        }
+    };
+
+    return (
+        React.createElement("div", { className: "app-container w-full min-h-screen max-w-full mx-auto flex flex-col relative md:max-w-md md:border-x-2 md:border-[var(--border-primary)]" },
+            React.createElement("header", { className: "sticky top-0 z-30 bg-[var(--bg-header)] backdrop-blur-lg p-5 flex items-center justify-between gap-4 border-b border-[var(--border-primary)] animate-fade-in-down" },
+                React.createElement("button", { onClick: onSwitchProfileClick, className: "flex items-center gap-4 text-left p-2 -m-2 rounded-lg hover:bg-[var(--bg-secondary)]" },
+                    React.createElement("div", { className: "relative w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0" },
+                        React.createElement("div", { className: `absolute inset-0 bg-gradient-to-br from-[var(--gradient-accent-from)] to-[var(--gradient-accent-to)] rounded-full transition-all duration-300 ${activeBorderClassName} ring-4 ring-offset-2 ring-offset-[var(--bg-primary)]` }),
+                        React.createElement("span", { className: "relative text-white text-xl font-bold" }, user.name.charAt(0).toUpperCase())
+                    ),
+                    React.createElement("div", null,
+                         React.createElement("p", { className: "text-lg font-bold text-[var(--text-primary)]" }, `Welcome, ${user.name}!`),
+                         React.createElement("p", { className: "text-sm text-[var(--text-secondary)] font-medium" }, user.college)
+                    )
+                ),
+                 React.createElement("div", { className: "flex items-center gap-2 bg-[var(--bg-secondary)] border border-[var(--border-primary)] px-3 py-1.5 rounded-full" },
+                    React.createElement(GemIcon, { className: "w-5 h-5 text-cyan-400" }),
+                    React.createElement("span", { className: "font-bold text-[var(--text-primary)]" }, user.gems)
+                )
+            ),
+            React.createElement("main", { className: "flex-1 pb-32 overflow-y-auto" },
+                React.createElement("div", { className: "p-5", key: currentScreen },
+                    React.createElement("div", { className: "animate-fade-in" },
+                        renderScreen()
+                    )
+                )
+            ),
+            React.createElement(BottomNav, { currentScreen: currentScreen, onNavigate: setCurrentScreen }),
+            isModalOpen && React.createElement(AddTaskModal, { onClose: () => setIsModalOpen(false), onSave: onAddTask, onAddParentWithSubtasks: onAddParentWithSubtasks })
+        )
+    );
+};
+// --- END OF COMPONENTS ---
+
+
+// --- START OF APP ---
+const App = () => {
+    const createNewProfile = (id, name, college) => {
+        const initialAchievements = [
+            { id: 'tasks1', title: 'Task Novice', description: 'Complete 10 tasks', xpReward: 50, gemReward: 10, goal: 10, unlocked: false, getProgress: (_, tasks) => tasks.filter(t => t.completed).length },
+            { id: 'tasks2', title: 'Task Apprentice', description: 'Complete 25 tasks', xpReward: 100, gemReward: 25, goal: 25, unlocked: false, getProgress: (_, tasks) => tasks.filter(t => t.completed).length },
+            { id: 'streak1', title: 'Streak Starter', description: 'Reach a 3-day streak', xpReward: 50, gemReward: 15, goal: 3, unlocked: false, getProgress: (user) => user.dayStreak },
+            { id: 'streak2', title: 'Consistent Learner', description: 'Reach a 7-day streak', xpReward: 150, gemReward: 50, goal: 7, unlocked: false, getProgress: (user) => user.dayStreak },
+            { id: 'level1', title: 'Level 5 Reached', description: 'Reach level 5', xpReward: 100, gemReward: 25, goal: 5, unlocked: false, getProgress: (user) => user.level },
+        ];
+
+        const initialBorders = [
+            { id: 'border-blue', name: 'Default Blue', description: 'The classic, reliable blue.', cost: 0, isOwned: true, className: 'ring-blue-500' },
+            { id: 'border-gold', name: 'Golden Scholar', description: 'For the high achievers.', cost: 200, isOwned: false, className: 'ring-yellow-400' },
+            { id: 'border-neon', name: 'Neon Focus', description: 'Light up your profile with vibrant energy.', cost: 350, isOwned: false, className: 'ring-fuchsia-500' },
+            { id: 'border-forest', name: 'Forest Wisdom', description: 'A calm, natural look for deep study.', cost: 350, isOwned: false, className: 'ring-green-500' },
+        ];
+
+        return {
+            user: {
+                id,
+                name,
+                college,
+                xp: 0,
+                level: 1,
+                dayStreak: 0,
+                gems: 50,
+                activeBorderId: 'border-blue',
+                mysteryBoxes: 0,
+            },
+            tasks: [],
+            achievements: initialAchievements,
+            profileBorders: initialBorders,
+        };
+    };
+
+    const initialProfiles = {
+        'user-jai': {
+            ...createNewProfile('user-jai', 'Jai', 'Tech University'),
+            user: {
+                id: 'user-jai',
+                name: "Jai",
+                college: "Tech University",
+                xp: 1525,
+                level: 8,
+                dayStreak: 5,
+                gems: 250,
+                activeBorderId: 'border-blue',
+                mysteryBoxes: 1,
+            },
+            tasks: [
+                { id: '1', title: 'Review Chapter 3 of Algorithms', xp: 50, completed: true, createdAt: new Date().toISOString(), timeSpent: 1800, timerActive: false, category: 'Computer Science', priority: 'medium' },
+                { id: '2', title: 'Complete Calculus problem set', xp: 75, completed: true, createdAt: new Date().toISOString(), timeSpent: 2700, timerActive: false, category: 'Mathematics', priority: 'high' },
+                { id: '3', title: 'Work on React Native project', xp: 100, completed: true, createdAt: new Date().toISOString(), timeSpent: 5400, timerActive: false, category: 'Projects', priority: 'high' },
+                { id: '4', title: 'Read research paper on AI ethics', xp: 50, completed: false, createdAt: new Date().toISOString(), timeSpent: 900, timerActive: false, category: 'Computer Science', priority: 'low', reminderAt: new Date(Date.now() + 120000).toISOString() },
+                { id: '5', title: 'Prepare for Operating Systems quiz', xp: 75, completed: false, createdAt: new Date().toISOString(), timeSpent: 0, timerActive: false, priority: 'medium' },
+            ],
+        },
+        'user-soham': {
+            ...createNewProfile('user-soham', 'Soham', 'IIT Mumbai'),
+            user: {
+                id: 'user-soham',
+                name: 'Soham',
+                college: 'IIT Mumbai',
+                xp: 2450,
+                level: 13,
+                dayStreak: 12,
+                gems: 500,
+                activeBorderId: 'border-gold',
+                mysteryBoxes: 3,
+            },
+            tasks: [
+                { id: 's1', title: 'Quantum Mechanics simulation', xp: 150, completed: false, createdAt: new Date().toISOString(), timeSpent: 3600, timerActive: false, category: 'Physics', priority: 'high' },
+            ],
+            profileBorders: createNewProfile('user-soham', 'Soham', 'IIT Mumbai').profileBorders.map(b => b.id === 'border-gold' || b.id === 'border-blue' ? {...b, isOwned: true} : b),
+        },
+        'user-ishwari': {
+            ...createNewProfile('user-ishwari', 'Ishwari', 'Modern College'),
+            user: {
+                id: 'user-ishwari',
+                name: 'Ishwari',
+                college: 'Modern College',
+                xp: 1800,
+                level: 10,
+                dayStreak: 8,
+                gems: 300,
+                activeBorderId: 'border-neon',
+                mysteryBoxes: 2,
+            },
+            tasks: [
+                { id: 'i1', title: 'Study cell division diagrams', xp: 60, completed: true, createdAt: new Date().toISOString(), timeSpent: 2200, timerActive: false, category: 'Biology', priority: 'medium' },
+                { id: 'i2', title: 'Practice organic chemistry nomenclature', xp: 80, completed: false, createdAt: new Date().toISOString(), timeSpent: 0, timerActive: false, category: 'Chemistry', priority: 'high' },
+            ],
+            profileBorders: createNewProfile('user-ishwari', 'Ishwari', 'Modern College').profileBorders.map(b => b.id === 'border-neon' || b.id === 'border-blue' ? {...b, isOwned: true} : b),
+        },
+        'user-yogita': {
+            ...createNewProfile('user-yogita', 'Yogita', 'Fergusson College'),
+            user: {
+                id: 'user-yogita',
+                name: 'Yogita',
+                college: 'Fergusson College',
+                xp: 950,
+                level: 5,
+                dayStreak: 3,
+                gems: 150,
+                activeBorderId: 'border-forest',
+                mysteryBoxes: 0,
+            },
+            tasks: [
+                 { id: 'y1', title: 'Read Chapter 5 of "Pride and Prejudice"', xp: 40, completed: false, createdAt: new Date().toISOString(), timeSpent: 1500, timerActive: false, category: 'Literature', priority: 'low' },
+                 { id: 'y2', title: 'Review notes on the French Revolution', xp: 70, completed: true, createdAt: new Date().toISOString(), timeSpent: 3000, timerActive: false, category: 'History', priority: 'medium' },
+            ],
+            profileBorders: createNewProfile('user-yogita', 'Yogita', 'Fergusson College').profileBorders.map(b => b.id === 'border-forest' || b.id === 'border-blue' ? {...b, isOwned: true} : b),
+        },
+    };
+
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [profiles, setProfiles] = useState(initialProfiles);
+    const [currentUserId, setCurrentUserId] = useState('user-jai');
+    
+    const [currentScreen, setCurrentScreen] = useState('dashboard');
+    const [theme, setThemeState] = useState('dark');
+    const [levelUpInfo, setLevelUpInfo] = useState(null);
+    const [taskToDelete, setTaskToDelete] = useState(null);
+    const [reminders, setReminders] = useState([]);
+    const [unlockedAchievement, setUnlockedAchievement] = useState(null);
+    const [isProfileSwitcherOpen, setIsProfileSwitcherOpen] = useState(false);
+    
+    const timerIntervalRef = useRef(null);
+
+    const currentProfile = profiles[currentUserId];
+    const { user, tasks, achievements, profileBorders } = currentProfile;
+
+    const setTheme = (selectedTheme) => {
+        document.documentElement.setAttribute('data-theme', selectedTheme);
+        setThemeState(selectedTheme);
+    };
+
+    useEffect(() => {
+        setTheme('dark');
+    }, []);
+    
+    useEffect(() => {
+        const activeTask = tasks.find(t => t.timerActive);
+        if (activeTask) {
+            if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
+            timerIntervalRef.current = window.setInterval(() => {
+                setProfiles(prev => {
+                    const profile = prev[currentUserId];
+                    if (!profile) return prev;
+                    const updatedTasks = profile.tasks.map(t =>
+                        t.id === activeTask.id ? { ...t, timeSpent: (t.timeSpent || 0) + 1 } : t
+                    );
+                    return { ...prev, [currentUserId]: { ...profile, tasks: updatedTasks } };
+                });
+            }, 1000);
+        } else {
+            if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
+        }
+        return () => {
+            if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
+        };
+    }, [tasks, currentUserId]);
+
+    useEffect(() => {
+        const checkReminders = () => {
+            const now = new Date();
+            const upcomingReminders = tasks.filter(task => {
+                if (task.reminderAt && !task.completed) {
+                    const reminderTime = new Date(task.reminderAt);
+                    return reminderTime <= now && !reminders.some(r => r.id === task.id);
+                }
+                return false;
+            });
+
+            if (upcomingReminders.length > 0) {
+                setReminders(prev => [...prev, ...upcomingReminders]);
+            }
+        };
+
+        const interval = setInterval(checkReminders, 10000);
+        return () => clearInterval(interval);
+    }, [tasks, reminders]);
+
+    const handleAddXp = (xp) => {
+        if (!currentUserId) return;
+        setProfiles(prevProfiles => {
+            const profile = prevProfiles[currentUserId];
+            if (!profile) return prevProfiles;
+            const { user, tasks, achievements } = profile;
+
+            const newXp = user.xp + xp;
+            const xpForNextLevel = 200;
+            const newLevel = Math.floor(newXp / xpForNextLevel) + 1;
+
+            if (newLevel > user.level) {
+                setLevelUpInfo({ level: newLevel });
+            }
+
+            const updatedUserForCheck = { ...user, xp: newXp, level: newLevel };
+            
+            let accumulatedGems = 0;
+            let accumulatedXp = 0;
+
+            const updatedAchievements = achievements.map(ach => {
+                if (!ach.unlocked && ach.getProgress(updatedUserForCheck, tasks) >= ach.goal) {
+                    accumulatedGems += ach.gemReward;
+                    accumulatedXp += ach.xpReward;
+                    setUnlockedAchievement(ach);
+                    return { ...ach, unlocked: true };
+                }
+                return ach;
+            });
+            
+            const finalXp = newXp + accumulatedXp;
+            const finalLevel = Math.floor(finalXp / xpForNextLevel) + 1;
+            const finalGems = user.gems + accumulatedGems;
+
+            const finalUser = { ...user, xp: finalXp, level: finalLevel, gems: finalGems };
+            const updatedProfile = { ...profile, user: finalUser, achievements: updatedAchievements };
+            return { ...prevProfiles, [currentUserId]: updatedProfile };
+        });
+    };
+    
+    const handleAddTask = (taskData) => {
+        const newTask = {
+            id: crypto.randomUUID(),
+            ...taskData,
+            completed: false,
+            createdAt: new Date().toISOString(),
+            timeSpent: 0,
+            timerActive: false,
+        };
+        setProfiles(prev => {
+            const profile = prev[currentUserId];
+            if (!profile) return prev;
+            return { ...prev, [currentUserId]: { ...profile, tasks: [...profile.tasks, newTask] } };
+        });
+    };
+    
+    const handleAddParentWithSubtasks = (parentTitle, subTasksData, category, priority, reminderAt) => {
+        const parentId = crypto.randomUUID();
+        const totalXp = subTasksData.reduce((sum, st) => sum + st.xp, 0);
+
+        const parentTask = {
+            id: parentId,
+            title: parentTitle,
+            xp: totalXp,
+            completed: false,
+            createdAt: new Date().toISOString(),
+            category,
+            priority,
+            reminderAt,
+        };
+
+        const subTasks = subTasksData.map(st => ({
+            id: crypto.randomUUID(),
+            ...st,
+            parentId,
+            completed: false,
+            createdAt: new Date().toISOString(),
+        }));
+        
+        setProfiles(prev => {
+            const profile = prev[currentUserId];
+            if (!profile) return prev;
+            return { ...prev, [currentUserId]: { ...profile, tasks: [...profile.tasks, parentTask, ...subTasks] } };
+        });
+    };
+    
+    const handleToggleTask = (taskId) => {
+        let xpGained = 0;
+        let mysteryBoxAwarded = 0;
+        
+        const updatedTasks = tasks.map(task => {
+            if (task.id === taskId) {
+                const isNowCompleted = !task.completed;
+                if (isNowCompleted) {
+                    xpGained += task.xp;
+                    if (Math.random() < 0.1) {
+                        mysteryBoxAwarded += 1;
+                    }
+                }
+                return { ...task, completed: isNowCompleted, timerActive: false };
+            }
+            return task;
+        });
+        
+        setProfiles(prev => {
+            const profile = prev[currentUserId];
+            if (!profile) return prev;
+            const updatedProfile = { ...profile, tasks: updatedTasks };
+             if (mysteryBoxAwarded > 0) {
+                updatedProfile.user = { ...profile.user, mysteryBoxes: profile.user.mysteryBoxes + mysteryBoxAwarded };
+            }
+            return { ...prev, [currentUserId]: updatedProfile };
+        });
+
+        if (xpGained > 0) {
+            handleAddXp(xpGained);
+        }
+    };
+    
+    const handleToggleTimer = (taskId) => {
+        setProfiles(prev => {
+            const profile = prev[currentUserId];
+            if (!profile) return prev;
+            const updatedTasks = profile.tasks.map(t => {
+                if (t.id === taskId) return { ...t, timerActive: !t.timerActive };
+                return { ...t, timerActive: false };
+            });
+            return { ...prev, [currentUserId]: { ...profile, tasks: updatedTasks } };
+        });
+    };
+
+    const handleDeleteTask = (taskId) => {
+        setProfiles(prev => {
+            const profile = prev[currentUserId];
+            if (!profile) return prev;
+            const updatedTasks = profile.tasks.filter(t => t.id !== taskId && t.parentId !== taskId);
+            return { ...prev, [currentUserId]: { ...profile, tasks: updatedTasks } };
+        });
+        setTaskToDelete(null);
+    };
+    
+    const handlePurchaseBorder = (borderId) => {
+        const border = profileBorders.find(b => b.id === borderId);
+        if (!border || user.gems < border.cost) return;
+
+        setProfiles((prev) => {
+            const profile = prev[currentUserId];
+            if (!profile) return prev;
+            const updatedBorders = profile.profileBorders.map(b => b.id === borderId ? { ...b, isOwned: true } : b);
+            const updatedUser = { ...profile.user, gems: profile.user.gems - border.cost };
+            return { ...prev, [currentUserId]: { ...profile, user: updatedUser, profileBorders: updatedBorders } };
+        });
+    };
+
+    const handleSetActiveBorder = (borderId) => {
+         setProfiles(prev => {
+            const profile = prev[currentUserId];
+            if (!profile) return prev;
+            const updatedUser = { ...profile.user, activeBorderId: borderId };
+            return { ...prev, [currentUserId]: { ...profile, user: updatedUser } };
+        });
+    };
+
+    const handleOpenMysteryBox = () => {
+        if (user.mysteryBoxes <= 0) return null;
+
+        const gemRewards = [10, 25, 50, 75, 100];
+        const xpRewards = [20, 50, 100, 150, 200];
+        const gems = gemRewards[Math.floor(Math.random() * gemRewards.length)];
+        const xp = xpRewards[Math.floor(Math.random() * xpRewards.length)];
+
+        setProfiles((prev) => {
+            const profile = prev[currentUserId];
+            if (!profile) return prev;
+            const updatedUser = { 
+                ...profile.user, 
+                mysteryBoxes: profile.user.mysteryBoxes - 1,
+                gems: profile.user.gems + gems,
+            };
+            return { ...prev, [currentUserId]: { ...profile, user: updatedUser } };
+        });
+        
+        handleAddXp(xp);
+        return { gems, xp };
+    };
+    
+    const handleAddProfile = (name, college) => {
+        const newId = `user-${name.toLowerCase().replace(/\s/g, '-')}-${Date.now()}`;
+        const newProfile = createNewProfile(newId, name, college);
+        setProfiles(prev => ({ ...prev, [newId]: newProfile }));
+        setCurrentUserId(newId);
+        setIsProfileSwitcherOpen(false);
+    };
+
+    const handleSwitchProfile = (userId) => {
+        setCurrentUserId(userId);
+        setIsProfileSwitcherOpen(false);
+        setCurrentScreen('dashboard');
+    };
+    
+    const activeBorderClassName = profileBorders.find(b => b.id === user.activeBorderId)?.className || '';
+
+    const leaderboard = Object.values(profiles)
+        .map(p => p.user)
+        .sort((a, b) => b.xp - a.xp)
+        .map((u, index) => ({
+            rank: index + 1,
+            name: u.name,
+            college: u.college,
+            xp: u.xp,
+            isCurrentUser: u.id === currentUserId,
+        }));
+
+    if (!isLoggedIn) {
+        return React.createElement(LoginScreen, { onLogin: () => setIsLoggedIn(true) });
+    }
+
+    if (!currentProfile) {
+        return React.createElement("div", { className: "flex items-center justify-center min-h-screen" }, "Loading Profile...");
+    }
+
+    return (
+        React.createElement(React.Fragment, null,
+            React.createElement(MainApp, { 
+                user: user,
+                tasks: tasks,
+                leaderboard: leaderboard,
+                currentScreen: currentScreen,
+                setCurrentScreen: setCurrentScreen,
+                onAddTask: handleAddTask,
+                onAddParentWithSubtasks: handleAddParentWithSubtasks,
+                onToggleTask: handleToggleTask,
+                onToggleTimer: handleToggleTimer,
+                onDeleteTask: (id) => setTaskToDelete(id),
+                onAddXp: handleAddXp,
+                achievements: achievements,
+                profileBorders: profileBorders,
+                onPurchaseBorder: handlePurchaseBorder,
+                onSetActiveBorder: handleSetActiveBorder,
+                activeBorderClassName: activeBorderClassName,
+                theme: theme,
+                setTheme: setTheme,
+                onOpenMysteryBox: handleOpenMysteryBox,
+                onSwitchProfileClick: () => setIsProfileSwitcherOpen(true)
+            }),
+            levelUpInfo && React.createElement(LevelUpNotification, { level: levelUpInfo.level }),
+            unlockedAchievement && React.createElement(AchievementNotification, { achievement: unlockedAchievement }),
+            React.createElement(ConfirmDeleteModal, { 
+                isOpen: !!taskToDelete, 
+                onClose: () => setTaskToDelete(null),
+                onConfirm: () => taskToDelete && handleDeleteTask(taskToDelete)
+            }),
+            isProfileSwitcherOpen && (
+                React.createElement(ProfileSwitcherModal, {
+                    profiles: Object.values(profiles).map(p => p.user),
+                    currentUserId: currentUserId,
+                    onClose: () => setIsProfileSwitcherOpen(false),
+                    onSwitch: handleSwitchProfile,
+                    onAdd: handleAddProfile
+                })
+            ),
+             React.createElement("div", { className: "fixed top-5 right-5 z-[100] space-y-3" },
+                reminders.map(task => (
+                    React.createElement(ReminderNotification, { 
+                        key: task.id, 
+                        task: task, 
+                        onClose: () => setReminders(r => r.filter(rem => rem.id !== task.id)) 
+                    })
+                ))
+            )
+        )
+    );
+};
+// --- END OF APP ---
+
+// --- RENDER ---
+const rootElement = document.getElementById('root');
+if (!rootElement) {
+  throw new Error("Could not find root element to mount to");
+}
+const root = ReactDOM.createRoot(rootElement);
+root.render(
+  React.createElement(React.StrictMode, null, React.createElement(App, null))
+);
+
+</script>
+</body>
+</html>
